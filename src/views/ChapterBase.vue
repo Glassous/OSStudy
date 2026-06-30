@@ -141,37 +141,19 @@
 
     </div>
 
-    <!-- Navigation Footer -->
-    <footer class="mt-16 pt-8 border-t border-slate-200 flex items-center justify-between">
-      <button 
-        @click="goPrev" 
-        :disabled="!prevRoute"
-        class="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-      >
-        &larr; 上一章 ({{ prevRoute?.title?.substring(0, 6) }})
-      </button>
-      <button 
-        @click="goNext" 
-        :disabled="!nextRoute"
-        class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded text-sm font-semibold hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-      >
-        下一章 ({{ nextRoute?.title?.substring(0, 6) }}) &rarr;
-      </button>
-    </footer>
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, reactive } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { rawTexts } from '../data/chaptersRaw.js'
 import { chapterLectures } from '../data/chapterLectures.js'
 import { customExplanations, generateFallbackExplanation } from '../data/chaptersExplanation.js'
 import { parseChapterQuestions, formatContentToHtml } from '../utils/parser.js'
-import { menuStructure } from '../router'
 
 const route = useRoute()
-const router = useRouter()
 
 const activeTab = ref('lecture')
 const expandedSolutions = reactive({})
@@ -231,42 +213,7 @@ const toggleAllSolutions = () => {
   })
 }
 
-// 扁平化章节做上一章/下一章切换（无子章节）
-const flatChapters = computed(() => {
-  return menuStructure
-    .filter(item => item.path !== 'algorithm')
-    .map(item => ({
-      name: item.path,
-      path: `/${item.path}`,
-      title: item.meta.title
-    }))
-})
 
-const currentIndex = computed(() => {
-  return flatChapters.value.findIndex(item => item.name === chapterPath.value)
-})
-
-const prevRoute = computed(() => {
-  const index = currentIndex.value
-  return index > 0 ? flatChapters.value[index - 1] : null
-})
-
-const nextRoute = computed(() => {
-  const index = currentIndex.value
-  return (index !== -1 && index < flatChapters.value.length - 1) ? flatChapters.value[index + 1] : null
-})
-
-const goPrev = () => {
-  if (prevRoute.value) {
-    router.push(prevRoute.value.path)
-  }
-}
-
-const goNext = () => {
-  if (nextRoute.value) {
-    router.push(nextRoute.value.path)
-  }
-}
 </script>
 
 <style scoped>

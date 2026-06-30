@@ -5,9 +5,6 @@
       <h1 class="text-4xl md:text-5xl font-extrabold text-slate-950 tracking-tight mb-4">
         操作系统学习指南
       </h1>
-      <p class="text-base text-slate-500 max-w-2xl leading-relaxed font-semibold">
-        一个系统化、极简风格的操作系统学习平台，深度融合 11 章课后原题及 6 大硬核算法专题，助您通关操作系统核心机制。
-      </p>
     </header>
 
     <!-- Main Features Grid (Clickable Cards) -->
@@ -65,7 +62,7 @@
     <!-- Chapters & Algorithms Grid (Clickable Cards) -->
     <section class="mb-12">
       <h2 class="text-2xl font-extrabold text-slate-950 mb-8 border-b border-slate-100 pb-3">
-        全景知识图谱概览
+        目录
       </h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <router-link 

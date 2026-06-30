@@ -1,5 +1,74 @@
-# Vue 3 + Vite
+# OS Study Guide (操作系统学习指南)
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+<p align="center">
+  <img src="./public/OSBook.png" alt="OS Study Guide Logo" width="100" height="100" />
+</p>
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+`OS Study Guide` 是一个专为计算机及相关专业学生打造的**高品质、精简现代风格的操作系统学习平台**。项目深度融合了经典的理论习题解析与可视化的硬核算法交互计算模拟，全面攻克操作系统核心概念与期末考核设计难题。
+
+---
+
+## 🌟 核心特性
+
+- **📚 11 大理论章节精讲与习题同步库**
+  - 全面覆盖操作系统的 11 个学术理论章节（从概述、进程/线程、进程同步、处理机调度、死锁、内存管理、虚拟存储、设备管理、文件管理到系统安全与接口）。
+  - 内置精简提炼的章节考纲“核心内容讲解”，助您快速抓住重点。
+  - 内置“章节同步例题”，集成智能解析模块，支持对题目解答进行逐步剖析，展示数学公式及代码详情。
+- **⚡ 6 大硬核算法专题交互模拟器**
+  - **CPU 调度算法**：支持 FCFS、SJF、SRTF、HRRN、RR（时间片轮转），可视化动态输出甘特图、计算周转时间及带权周转时间。
+  - **银行家安全算法**：支持输入 Max、Allocation、Available 等矩阵进行安全性检查，动态推演安全序列或死锁态，防范死锁发生。
+  - **页面置换算法**：支持输入页面走向，在线模拟 OPT、FIFO、LRU、CLOCK 置换流程，生成缺页与置换全景表格，精准计算缺页率。
+  - **磁盘调度算法**：模拟 FCFS、SSTF、SCAN、C-SCAN 算法的磁头移动轨迹与寻道长度。
+  - **经典 PV 操作代码**：包含生产者-消费者、读者-写者、哲学家进餐、吸烟者、独木桥等经典同步互斥问题的数学逻辑与标准代码段。
+  - **文件系统空间与索引**：支持对混合索引结构进行逻辑容量计算，以及外存寻址读盘次数的深度拆解。
+- **📂 资源极速下载中心**
+  - 主页内置课件及 10 大章节同步课后习题 PDF 下载通道，支持 Fetch-Blob 强制文件下载，防止直接被浏览器开新标签页预览。
+  - 提供同步的 Markdown 在线预览功能，支持 marked + KaTeX 数学公式渲染，自适应铺满屏幕。
+- **💅 极致视觉与交互**
+  - 侧边栏及主页卡片均支持平滑过渡，侧栏菜单展开时自动聚焦滚动。
+  - 算法运行和解答展开时，页面自动平滑下滚对准核心计算结果展示区。
+  - 适配 LaTeX 格式的数学公式排版，全部原题数据均经纯 UTF-8 格式直接归整，排版美观可读性高。
+
+---
+
+## 🛠️ 技术栈
+
+- **前端框架**：Vue 3 (SFC, `<script setup>`)
+- **构建工具**：Vite 8.x
+- **路由管理**：Vue Router 4.x
+- **样式系统**：Tailwind CSS
+- **Markdown & 公式解析**：Marked + KaTeX (引入 `v-math` 指令)
+- **打包标准**：Vite 生产包一键优化
+
+---
+
+## 🚀 快速开始
+
+### 1. 克隆项目
+```bash
+git clone https://github.com/Glassous/OSStudy.git
+cd OSStudy
+```
+
+### 2. 安装依赖
+```bash
+npm install
+```
+
+### 3. 本地运行开发服务
+```bash
+npm run dev
+```
+打开浏览器访问：`http://localhost:5173/`
+
+### 4. 生产环境打包
+```bash
+npm run build
+```
+打包产物将保存在根目录的 `dist/` 文件夹中。
+
+---
+
+## 📄 开源协议
+
+本项目基于 [MIT License](./LICENSE) 协议开源。
