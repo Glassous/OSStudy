@@ -230,11 +230,11 @@ const dashboardItems = computed(() => [
   { type: 'Theory', tag: '理论', title: '第10章 系统安全', desc: '操作系统面临的安全威胁（木马/蠕虫），访问控制矩阵、控制列表与能力表。', link: '/chapter10' },
   { type: 'Theory', tag: '理论', title: '第11章 操作系统接口', desc: '命令行及图形用户接口，系统调用（陷阱/访管指令）运行机制，及 API 区别。', link: '/chapter11' },
   
-  { type: 'Algorithm', tag: '算法', title: '模块一：CPU 调度算法', desc: '集成 FCFS, SJF, SRTF, HRRN, RR 算法计算器与甘特图绘制器。', link: '/algorithm-cpu/fcfs' },
+  { type: 'Algorithm', tag: '算法', title: '模块一：CPU 调度算法', desc: '集成 FCFS, SJF, SRTF, RR, 优先级, HRRN, MFQ, 公平调度算法计算器与甘特图绘制器。', link: '/algorithm-cpu/fcfs' },
   { type: 'Algorithm', tag: '算法', title: '模块二：银行家安全算法', desc: '死锁避免银行家算法求取安全序列，动态展示 Work-Need 检查表的执行逻辑。', link: '/algorithm-banker/theory' },
-  { type: 'Algorithm', tag: '算法', title: '模块三：页面置换算法', desc: '计算 OPT, FIFO, LRU, CLOCK 的页面调度轨迹，统计总缺页率与命中率。', link: '/algorithm-page/opt' },
-  { type: 'Algorithm', tag: '算法', title: '模块四：磁盘调度算法', desc: '模拟计算 FCFS, SSTF, SCAN, C-SCAN 的寻道磁道轨迹及计算总移动长度。', link: '/algorithm-disk/fcfs' },
-  { type: 'Algorithm', tag: '算法', title: '模块五：经典 PV 操作', desc: '整理生产者消费者、读者写者、哲学家进餐等 5 大经典同步代码及满分代码。', link: '/algorithm-pv/producer-consumer' },
+  { type: 'Algorithm', tag: '算法', title: '模块三：页面置换算法', desc: '计算 OPT, FIFO, LRU, CLOCK, LFU 的页面调度轨迹，统计总缺页率与命中率。', link: '/algorithm-page/opt' },
+  { type: 'Algorithm', tag: '算法', title: '模块四：磁盘调度算法', desc: '模拟计算 FCFS, SSTF, SCAN, C-SCAN, N-Step SCAN 的寻道磁道轨迹及计算总移动长度。', link: '/algorithm-disk/fcfs' },
+  { type: 'Algorithm', tag: '算法', title: '模块五：经典 PV 操作', desc: '整理生产者消费者、读者写者、哲学家进餐 3 大经典同步问题满分代码。', link: '/algorithm-pv/producer-consumer' },
   { type: 'Algorithm', tag: '算法', title: '模块六：文件系统空间与索引', desc: '计算多级混合索引支持的最大文件物理长度，推导任意字节偏移的磁盘读盘次数。', link: '/algorithm-file/capacity' }
 ])
 </script>

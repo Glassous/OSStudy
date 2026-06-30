@@ -29,8 +29,11 @@ export const menuStructure = [
       { path: 'fcfs', name: 'algo-cpu-fcfs', meta: { title: '先来先服务 (FCFS)' } },
       { path: 'sjf', name: 'algo-cpu-sjf', meta: { title: '非抢占短作业优先 (SJF)' } },
       { path: 'srtf', name: 'algo-cpu-srtf', meta: { title: '抢占式短作业优先 (SRTF)' } },
+      { path: 'rr', name: 'algo-cpu-rr', meta: { title: '时间片轮转 (RR)' } },
+      { path: 'priority', name: 'algo-cpu-priority', meta: { title: '优先级调度' } },
       { path: 'hrrn', name: 'algo-cpu-hrrn', meta: { title: '高响应比优先 (HRRN)' } },
-      { path: 'rr', name: 'algo-cpu-rr', meta: { title: '时间片轮转 (RR)' } }
+      { path: 'mfq', name: 'algo-cpu-mfq', meta: { title: '多级反馈队列调度 (MFQ)' } },
+      { path: 'fair', name: 'algo-cpu-fair', meta: { title: '基于公平原则的调度' } }
     ]
   },
   // 顶级模块二
@@ -52,7 +55,8 @@ export const menuStructure = [
       { path: 'opt', name: 'algo-page-opt', meta: { title: '最佳置换算法 (OPT)' } },
       { path: 'fifo', name: 'algo-page-fifo', meta: { title: '先进先出置换 (FIFO)' } },
       { path: 'lru', name: 'algo-page-lru', meta: { title: '最近最久未使用 (LRU)' } },
-      { path: 'clock', name: 'algo-page-clock', meta: { title: '时钟置换算法 (CLOCK)' } }
+      { path: 'clock', name: 'algo-page-clock', meta: { title: '时钟置换算法 (CLOCK)' } },
+      { path: 'lfu', name: 'algo-page-lfu', meta: { title: '最近最少使用 (LFU)' } }
     ]
   },
   // 顶级模块四
@@ -63,8 +67,9 @@ export const menuStructure = [
     children: [
       { path: 'fcfs', name: 'algo-disk-fcfs', meta: { title: '先来先服务 (FCFS)' } },
       { path: 'sstf', name: 'algo-disk-sstf', meta: { title: '最短寻道时间优先 (SSTF)' } },
-      { path: 'scan', name: 'algo-disk-scan', meta: { title: '电梯双向扫描 (SCAN)' } },
-      { path: 'c-scan', name: 'algo-disk-cscan', meta: { title: '循环单向扫描 (C-SCAN)' } }
+      { path: 'scan', name: 'algo-disk-scan', meta: { title: '扫描算法 / 电梯算法 (SCAN)' } },
+      { path: 'c-scan', name: 'algo-disk-cscan', meta: { title: '循环扫描 (C-SCAN)' } },
+      { path: 'nstep-scan', name: 'algo-disk-nstep', meta: { title: 'N步扫描 (N-Step SCAN)' } }
     ]
   },
   // 顶级模块五
@@ -75,9 +80,7 @@ export const menuStructure = [
     children: [
       { path: 'producer-consumer', name: 'algo-pv-producer-consumer', meta: { title: '生产者-消费者问题' } },
       { path: 'reader-writer', name: 'algo-pv-reader-writer', meta: { title: '读者-写者问题' } },
-      { path: 'philosophers', name: 'algo-pv-philosophers', meta: { title: '哲学家进餐问题' } },
-      { path: 'smokers', name: 'algo-pv-smokers', meta: { title: '吸烟者同步问题' } },
-      { path: 'bridge', name: 'algo-pv-bridge', meta: { title: '独木桥过桥问题' } }
+      { path: 'philosophers', name: 'algo-pv-philosophers', meta: { title: '哲学家进餐问题' } }
     ]
   },
   // 顶级模块六

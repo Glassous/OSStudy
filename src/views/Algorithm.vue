@@ -55,6 +55,18 @@
               <p><strong>时间片轮转 (RR) 决策逻辑：</strong> 进程执行时间片 $q$ 耗尽，或者当前进程运行结束。按队列先进先出顺序轮转调度。</p>
               <p class="text-xs text-amber-700 bg-amber-50 p-2 border border-amber-100 rounded">⚠️ 队列入队规则：当在时刻 $t$，进程 A 刚好用完时间片退队，而进程 B 刚好在时刻 $t$ 到达。标准考法中：新到达的进程 B 先入队，用完时间片的进程 A 随后入队。队列变为：$[..., B, A]$。</p>
             </div>
+            <div v-else-if="route.name === 'algo-cpu-priority'">
+              <p><strong>优先级调度决策逻辑：</strong> 每次 CPU 空闲时，在所有<strong>已到达</strong>的就绪进程中选择优先级最高的进程运行（数值越小优先级越高）。非抢占式。</p>
+              <p class="text-xs text-amber-700 bg-amber-50 p-2 border border-amber-100 rounded">⚠️ 易错细节：优先级调度可能导致低优先级进程长期得不到 CPU 而<strong>饥饿</strong>。可通过动态优先级或老化技术解决。</p>
+            </div>
+            <div v-else-if="route.name === 'algo-cpu-mfq'">
+              <p><strong>多级反馈队列调度 (MFQ) 决策逻辑：</strong> 设置多个就绪队列，各级队列时间片大小不同（高级队列时间片短，低级队列时间片长）。新进程进入最高级队列，用完时间片未完成则降级。</p>
+              <p class="text-xs text-indigo-700 bg-indigo-50 p-2 border border-indigo-100 rounded">💡 调度规则：优先服务高优先级队列，同级队列内按 FCFS / RR 轮转。I/O 密集型进程因经常主动让出 CPU，可能保持在高级队列获得更快响应。</p>
+            </div>
+            <div v-else-if="route.name === 'algo-cpu-fair'">
+              <p><strong>基于公平原则的调度决策逻辑：</strong> 每个进程获得公平的 CPU 时间份额。调度器选择<strong>虚拟运行时间 (vruntime) 最小</strong>的进程投入运行，确保所有进程在时间轴上公平推进。</p>
+              <p class="text-xs text-indigo-700 bg-indigo-50 p-2 border border-indigo-100 rounded">💡 算法本质（类 Linux CFS）：$vruntime$ 以实际运行时间为基准，受进程权重/优先级调节。nice 值越低（优先级高），$vruntime$ 增长越慢，获得更多 CPU 时间。</p>
+            </div>
           </div>
 
           <!-- Banker Theory -->
@@ -95,6 +107,10 @@
             <div v-else-if="route.name === 'algo-page-clock'">
               <p><strong>时钟置换算法 (CLOCK / 二次机会)：</strong> 折中算法。每个物理块赋予一个访问位 A（访问时置 1）。淘汰时指针循环扫描，若 $A=1$ 则置 $A=0$ 给二次机会，若 $A=0$ 则直接置换该页。</p>
             </div>
+            <div v-else-if="route.name === 'algo-page-lfu'">
+              <p><strong>最近最少使用置换算法 (LFU)：</strong> 淘汰<strong>最近一段时间内被访问次数最少</strong>的页面。为每个页面维护一个计数器，每被访问一次计数器加 1，发生缺页时淘汰计数值最小的页面。</p>
+              <p class="text-xs text-amber-700 bg-amber-50 p-2 border border-amber-100 rounded">⚠️ 注意区别于 LRU：LRU 看最近有无被访问（时间维度），LFU 看最近被访问的频率（次数维度）。LRU 倾向淘汰长时间未用的页，LFU 倾向淘汰访问稀少的页。</p>
+            </div>
           </div>
 
           <!-- Disk Scheduling Theory -->
@@ -112,6 +128,10 @@
             <div v-else-if="route.name === 'algo-disk-cscan'">
               <p><strong>循环单向扫描算法 (C-SCAN)：</strong> 磁头单向移动服务（如只向大磁道方向）。到达边缘边界（199）后，<strong>直接跳回另一端起点（0）</strong>继续同向扫描，跳回过程不服务，提供最均匀的等待时间。</p>
             </div>
+            <div v-else-if="route.name === 'algo-disk-nstep'">
+              <p><strong>N步扫描算法 (N-Step SCAN)：</strong> 将磁盘请求队列分成若干个长度为 $N$ 的子队列。每次 SCAN 服务一个子队列，服务期间新到达的请求加入新队列，避免 SCAN 算法的"磁臂粘着"现象。$N$ 值越大越接近 SCAN，越小越接近 SSTF。</p>
+              <p class="text-xs text-indigo-700 bg-indigo-50 p-2 border border-indigo-100 rounded">💡 N 的取值：通常 $N = \sqrt{\text{请求总数}}$ 左右。N 步扫描本质是将无限队列切割为有限长度的 SCAN 批处理，既保证了寻道优化，又防止了饥饿。</p>
+            </div>
           </div>
 
           <!-- PV Operations Theory -->
@@ -120,8 +140,7 @@
             <p v-if="route.name === 'algo-pv-producer-consumer'"><strong>生产者-消费者问题：</strong> 需同时解决缓冲池互斥（mutex = 1）和缓冲池满/空（full/empty）的同步控制。</p>
             <p v-else-if="route.name === 'algo-pv-reader-writer'"><strong>读者-写者问题（读者优先）：</strong> 第一个读者锁定写锁，最后一个读者释放写锁。读写互斥，允许多读并发。</p>
             <p v-else-if="route.name === 'algo-pv-philosophers'"><strong>哲学家进餐问题：</strong> 需解决筷子竞争死锁。这里采用“限制最大入座人数为 4 人”来规避死锁发生。</p>
-            <p v-else-if="route.name === 'algo-pv-smokers'"><strong>吸烟者同步问题：</strong> 一个中介投放复合资源，多个吸烟者根据缺席资源进行定向同步（单中介多实体同步）。</p>
-            <p v-else-if="route.name === 'algo-pv-bridge'"><strong>独木桥过桥问题：</strong> 限制单向互斥通车，同向在桥上不超过 $K$ 辆并发通行，为读者-写者与限流器的结合体。</p>
+
           </div>
 
           <!-- File System Theory -->
@@ -158,6 +177,8 @@
                   <th class="px-4 py-2">进程名</th>
                   <th class="px-4 py-2">到达时间</th>
                   <th class="px-4 py-2">服务时间</th>
+                  <th v-if="route.name === 'algo-cpu-priority'" class="px-4 py-2">优先级</th>
+                  <th v-if="route.name === 'algo-cpu-fair'" class="px-4 py-2">权重</th>
                   <th class="px-4 py-2">操作</th>
                 </tr>
               </thead>
@@ -166,15 +187,25 @@
                   <td class="px-4 py-2"><input v-model="p.name" type="text" class="w-16 border px-2 py-0.5 rounded text-center text-xs" /></td>
                   <td class="px-4 py-2"><input v-model.number="p.arrival" type="number" min="0" class="w-20 border px-2 py-0.5 rounded text-center text-xs" /></td>
                   <td class="px-4 py-2"><input v-model.number="p.service" type="number" min="1" class="w-20 border px-2 py-0.5 rounded text-center text-xs" /></td>
+                  <td v-if="route.name === 'algo-cpu-priority'" class="px-4 py-2"><input v-model.number="p.priority" type="number" min="0" class="w-20 border px-2 py-0.5 rounded text-center text-xs" /></td>
+                  <td v-if="route.name === 'algo-cpu-fair'" class="px-4 py-2"><input v-model.number="p.weight" type="number" min="1" class="w-20 border px-2 py-0.5 rounded text-center text-xs" /></td>
                   <td class="px-4 py-2"><button @click="removeCpuProcess(idx)" class="text-red-500 hover:text-red-700 text-xs font-bold cursor-pointer">删除</button></td>
                 </tr>
               </tbody>
             </table>
           </div>
           
-          <div class="flex gap-4">
+          <div class="flex gap-4 items-center">
             <button @click="addCpuProcess" class="px-3 py-1.5 border border-slate-200 rounded hover:bg-slate-50 text-xs font-bold text-slate-600 cursor-pointer">+ 添加进程</button>
             <button @click="runCpuScheduling" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold cursor-pointer">开始调度计算</button>
+            <div v-if="route.name === 'algo-cpu-rr'" class="flex items-center gap-2 ml-4">
+              <label class="text-xs font-bold text-slate-500">时间片 q:</label>
+              <input v-model.number="cpuQuantum" type="number" min="1" class="w-16 px-2 py-1 border border-slate-300 rounded text-xs outline-none" />
+            </div>
+            <div v-if="route.name === 'algo-cpu-mfq'" class="flex items-center gap-2 ml-4">
+              <label class="text-xs font-bold text-slate-500">队列级数:</label>
+              <input v-model.number="cpuMfqLevels" type="number" min="2" max="5" class="w-16 px-2 py-1 border border-slate-300 rounded text-xs outline-none" />
+            </div>
           </div>
 
           <!-- CPU Results (With Step Controller) -->
@@ -419,12 +450,18 @@
             </div>
           </div>
           
-          <div v-if="route.name === 'algo-disk-scan' || route.name === 'algo-disk-cscan'" class="w-72">
-            <label class="block text-xs font-bold text-slate-500 mb-1">初始寻道方向</label>
-            <select v-model="diskDirection" class="w-full px-3 py-1.5 border border-slate-300 rounded text-xs outline-none">
-              <option value="up">向磁道增加方向 (磁道增大)</option>
-              <option value="down">向磁道减小方向 (磁道减小)</option>
-            </select>
+          <div class="flex gap-4 items-start">
+            <div v-if="route.name === 'algo-disk-scan' || route.name === 'algo-disk-cscan' || route.name === 'algo-disk-nstep'" class="w-72">
+              <label class="block text-xs font-bold text-slate-500 mb-1">初始寻道方向</label>
+              <select v-model="diskDirection" class="w-full px-3 py-1.5 border border-slate-300 rounded text-xs outline-none">
+                <option value="up">向磁道增加方向 (磁道增大)</option>
+                <option value="down">向磁道减小方向 (磁道减小)</option>
+              </select>
+            </div>
+            <div v-if="route.name === 'algo-disk-nstep'" class="w-32">
+              <label class="block text-xs font-bold text-slate-500 mb-1">N (子队列长度)</label>
+              <input v-model.number="diskNStepSize" type="number" min="1" class="w-full px-3 py-1.5 border border-slate-300 rounded text-xs outline-none" />
+            </div>
           </div>
 
           <div>
@@ -653,16 +690,18 @@ const totalSteps = computed(() => {
 // ================== SHARED SIMULATION STATES ==================
 
 // 1. CPU Scheduling
+const cpuQuantum = ref(2)
+const cpuMfqLevels = ref(3)
 const cpuProcesses = ref([
-  { name: 'P1', arrival: 0, service: 8 },
-  { name: 'P2', arrival: 1, service: 4 },
-  { name: 'P3', arrival: 2, service: 9 },
-  { name: 'P4', arrival: 3, service: 5 }
+  { name: 'P1', arrival: 0, service: 8, priority: 2, weight: 1 },
+  { name: 'P2', arrival: 1, service: 4, priority: 1, weight: 2 },
+  { name: 'P3', arrival: 2, service: 9, priority: 3, weight: 1 },
+  { name: 'P4', arrival: 3, service: 5, priority: 2, weight: 3 }
 ])
 const cpuResult = ref(null)
 
 const addCpuProcess = () => {
-  cpuProcesses.value.push({ name: `P${cpuProcesses.value.length + 1}`, arrival: 0, service: 1 })
+  cpuProcesses.value.push({ name: `P${cpuProcesses.value.length + 1}`, arrival: 0, service: 1, priority: 1, weight: 1 })
 }
 const removeCpuProcess = (idx) => {
   cpuProcesses.value.splice(idx, 1)
@@ -757,7 +796,7 @@ const runCpuScheduling = () => {
   } else if (route.name === 'algo-cpu-rr') {
     const queue = []
     let pIdx = 0
-    const qSize = 2 // 默认 q = 2
+    const qSize = cpuQuantum.value
     
     const loadNew = () => {
       while (pIdx < list.length && list[pIdx].arrival <= currentTime) {
@@ -787,6 +826,96 @@ const runCpuScheduling = () => {
         queue.push(target)
       } else {
         target.completion = currentTime
+      }
+    }
+  } else if (route.name === 'algo-cpu-priority') {
+    const finished = new Set()
+    while (finished.size < list.length) {
+      const candidates = list.filter(p => p.arrival <= currentTime && !finished.has(p.name))
+      if (candidates.length === 0) {
+        currentTime = list.find(p => !finished.has(p.name)).arrival
+        continue
+      }
+      candidates.sort((a, b) => a.priority - b.priority)
+      const target = candidates[0]
+      gantt.push({ name: target.name, start: currentTime, duration: target.service, end: currentTime + target.service })
+      currentTime += target.service
+      target.completion = currentTime
+      finished.add(target.name)
+    }
+  } else if (route.name === 'algo-cpu-mfq') {
+    const levels = cpuMfqLevels.value
+    const queues = Array.from({ length: levels }, () => [])
+    const timeQuanta = Array.from({ length: levels }, (_, i) => Math.pow(2, i + 1))
+    let pIdx = 0
+    const levelMap = {}
+    list.forEach(p => { levelMap[p.name] = 0 })
+
+    const loadNew = () => {
+      while (pIdx < list.length && list[pIdx].arrival <= currentTime) {
+        queues[0].push(list[pIdx])
+        pIdx++
+      }
+    }
+
+    loadNew()
+    if (queues.every(q => q.length === 0) && pIdx < list.length) {
+      currentTime = list[pIdx].arrival
+      loadNew()
+    }
+
+    while (queues.some(q => q.length > 0) || pIdx < list.length) {
+      if (queues.every(q => q.length === 0)) {
+        currentTime = list[pIdx].arrival
+        loadNew()
+      }
+      let target = null
+      let targetLevel = -1
+      for (let lv = 0; lv < levels; lv++) {
+        if (queues[lv].length > 0) {
+          target = queues[lv].shift()
+          targetLevel = lv
+          break
+        }
+      }
+      if (!target) break
+      const qSize = timeQuanta[targetLevel]
+      const runTime = Math.min(target.remaining, qSize)
+      gantt.push({ name: target.name, start: currentTime, duration: runTime, end: currentTime + runTime })
+      currentTime += runTime
+      target.remaining -= runTime
+      loadNew()
+      if (target.remaining > 0) {
+        const nextLevel = Math.min(targetLevel + 1, levels - 1)
+        queues[nextLevel].push(target)
+        levelMap[target.name] = nextLevel
+      } else {
+        target.completion = currentTime
+      }
+    }
+  } else if (route.name === 'algo-cpu-fair') {
+    const finished = new Set()
+    const vruntime = {}
+    list.forEach(p => { vruntime[p.name] = 0 })
+    const baseWeight = 1
+    while (finished.size < list.length) {
+      const candidates = list.filter(p => p.arrival <= currentTime && !finished.has(p.name))
+      if (candidates.length === 0) {
+        currentTime = list.find(p => !finished.has(p.name)).arrival
+        continue
+      }
+      candidates.sort((a, b) => vruntime[a.name] - vruntime[b.name])
+      const target = candidates[0]
+      const weight = target.weight || 1
+      const slice = Math.max(1, Math.floor(1 * baseWeight / weight))
+      const runTime = Math.min(target.remaining, slice)
+      gantt.push({ name: target.name, start: currentTime, duration: runTime, end: currentTime + runTime })
+      currentTime += runTime
+      target.remaining -= runTime
+      vruntime[target.name] += runTime * baseWeight / weight
+      if (target.remaining === 0) {
+        target.completion = currentTime
+        finished.add(target.name)
       }
     }
   }
@@ -1022,6 +1151,38 @@ const runPageSimulation = () => {
       }
       steps.push({ page: p, frames: [...frames], isFault, replaced })
     })
+  } else if (algo === 'LFU') {
+    const freq = {}
+    pages.forEach(p => {
+      const isHit = frames.includes(p)
+      let replaced = null
+      let isFault = false
+      if (isHit) {
+        freq[p] = (freq[p] || 0) + 1
+      } else {
+        isFault = true
+        faults++
+        if (frames.includes(null)) {
+          const emptyIdx = frames.indexOf(null)
+          frames[emptyIdx] = p
+          freq[p] = 1
+        } else {
+          let minFreq = Infinity
+          for (const f of frames) {
+            const fq = freq[f] || 0
+            if (fq < minFreq) {
+              minFreq = fq
+              replaced = f
+            }
+          }
+          const replaceIdx = frames.indexOf(replaced)
+          frames[replaceIdx] = p
+          freq[p] = 1
+          delete freq[replaced]
+        }
+      }
+      steps.push({ page: p, frames: [...frames], isFault, replaced })
+    })
   }
 
   pageSimResult.value = { algorithm: algo, steps, faults, total: pages.length }
@@ -1042,6 +1203,7 @@ const displayedPageFaults = computed(() => {
 const diskRequestsStr = ref('98, 183, 37, 122, 14, 124, 65, 67')
 const diskHeadStart = ref(53)
 const diskDirection = ref('up')
+const diskNStepSize = ref(4)
 const diskSimResult = ref(null)
 
 const runDiskSimulation = () => {
@@ -1055,7 +1217,7 @@ const runDiskSimulation = () => {
   const path = [start]
   let current = start
   
-  const algo = route.name.replace('algo-disk-', '').toUpperCase() // FCFS, SSTF, SCAN, CSCAN
+  const algo = route.name.replace('algo-disk-', '').toUpperCase() // FCFS, SSTF, SCAN, CSCAN, NSTEP
 
   if (algo === 'FCFS') {
     reqs.forEach(to => {
@@ -1149,6 +1311,49 @@ const runDiskSimulation = () => {
         path.push(to)
         current = to
       })
+    }
+  } else if (algo === 'NSTEP') {
+    const n = diskNStepSize.value
+    const queue = [...reqs]
+    while (queue.length > 0) {
+      const batch = queue.splice(0, n).sort((a, b) => a - b)
+      if (diskDirection.value === 'up') {
+        const upBatch = batch.filter(r => r >= current)
+        const downBatch = batch.filter(r => r < current).reverse()
+        upBatch.forEach(to => {
+          steps.push({ from: current, to, distance: Math.abs(to - current) })
+          path.push(to)
+          current = to
+        })
+        if (downBatch.length > 0) {
+          steps.push({ from: current, to: 199, distance: Math.abs(199 - current) })
+          path.push(199)
+          current = 199
+          downBatch.forEach(to => {
+            steps.push({ from: current, to, distance: Math.abs(to - current) })
+            path.push(to)
+            current = to
+          })
+        }
+      } else {
+        const downBatch = batch.filter(r => r <= current).reverse()
+        const upBatch = batch.filter(r => r > current)
+        downBatch.forEach(to => {
+          steps.push({ from: current, to, distance: Math.abs(to - current) })
+          path.push(to)
+          current = to
+        })
+        if (upBatch.length > 0) {
+          steps.push({ from: current, to: 0, distance: Math.abs(0 - current) })
+          path.push(0)
+          current = 0
+          upBatch.forEach(to => {
+            steps.push({ from: current, to, distance: Math.abs(to - current) })
+            path.push(to)
+            current = to
+          })
+        }
+      }
     }
   }
 
@@ -1262,63 +1467,6 @@ void Philosopher(int i) {
         V(count);               // 归还进餐席位
     }
 }`,
-  'algo-pv-smokers': `// ================== 信号量与中介定义 ==================
-semaphore offer1 = 0;   // 同步信号：中介供应了 组合1（纸+火柴）
-semaphore offer2 = 0;   // 同步信号：中介供应了 组合2（烟草+火柴）
-semaphore offer3 = 0;   // 同步信号：中介供应了 组合3（烟草+纸）
-semaphore finish = 1;   // 抽烟完成信号锁（初始化为1，表示允许供应者摆放料包）
-
-// ================== 中介/供应者进程 ==================
-void Agent() {
-    while(true) {
-        P(finish);          // 阻塞等待，确保前一个吸烟者已抽完
-        int rand_val = rand() % 3;
-        if (rand_val == 0) {
-            V(offer1);      // 摆放纸+火柴，唤醒吸烟者 A (有烟草)
-        } else if (rand_val == 1) {
-            V(offer2);      // 摆放烟草+火柴，唤醒吸烟者 B (有纸)
-        } else {
-            V(offer3);      // 摆放烟草+纸，唤醒吸烟者 C (有火柴)
-        }
-    }
-}
-
-// ================== 吸烟者 A (拥有烟草) ==================
-void SmokerA() {
-    while(true) {
-        P(offer1);          // 等待中介给的纸和火柴
-        // 卷烟，吸烟...
-        V(finish);          // 释放同步完成，通知中介可继续投放
-    }
-}`,
-  'algo-pv-bridge': `// ================== 互斥与方向定义 ==================
-semaphore bridge = 1;       // 桥的占用互斥锁（东西两个反方向车辆冲突）
-semaphore mutex_east = 1;   // 保护东向车流计数器 count_east 修改的锁
-semaphore mutex_west = 1;   // 保护西向车流计数器 count_west 修改的锁
-semaphore limit = K;        // 限制同向桥上最大车辆数不能超过 K 辆
-int count_east = 0;         // 桥上正在行驶的东向车辆计数
-int count_west = 0;         // 桥上正在行驶的西向车辆计数
-
-// ================== 东向西车辆进程 ==================
-void East_to_West() {
-    P(mutex_east);
-    if (count_east == 0) {
-        P(bridge);          // 首辆东向车辆，抢占桥的单向通车权，阻塞西向车流
-    }
-    count_east++;
-    V(mutex_east);
-
-    P(limit);               // 检查桥上同向是否达到上限 K
-    // 行车过桥中...
-    V(limit);               // 顺利出桥，释放占有位置
-
-    P(mutex_east);
-    count_east--;
-    if (count_east == 0) {
-        V(bridge);          // 最后一辆出桥，释放桥方向使用权，允许对向过桥
-    }
-    V(mutex_east);
-}`
 }
 
 const pvCodeContent = computed(() => {
