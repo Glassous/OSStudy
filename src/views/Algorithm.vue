@@ -1,5 +1,5 @@
 <template>
-  <div class="py-10 max-w-4xl mx-auto px-4">
+  <div class="py-10 w-full px-6 md:px-12 max-w-none">
     <!-- Breadcrumbs -->
     <nav class="flex items-center space-x-2 text-sm text-slate-500 mb-6">
       <router-link to="/" class="hover:text-indigo-600 transition-colors">首页</router-link>
@@ -11,10 +11,10 @@
 
     <!-- Header Section -->
     <header class="border-b border-slate-200 pb-6 mb-8">
-      <h1 class="text-3xl font-extrabold text-slate-950 tracking-tight flex items-center gap-3">
+      <h1 class="text-4xl font-extrabold text-slate-950 tracking-tight flex items-center gap-3">
         <span class="text-indigo-600">⚡</span> {{ routeMetaTitle }}
       </h1>
-      <p class="text-sm text-slate-400 mt-2">所属模块：{{ parentTitle }}</p>
+      <p class="text-base text-slate-400 mt-2">所属模块：{{ parentTitle }}</p>
     </header>
 
     <!-- Content Area: Split into Theory and Simulator -->
@@ -22,11 +22,11 @@
       
       <!-- Part 1: Theory and Exam Templates -->
       <section class="bg-white p-6 border border-slate-200 rounded-lg">
-        <h2 class="text-lg font-extrabold text-slate-900 mb-4 border-l-4 border-indigo-600 pl-3">
+        <h2 class="text-xl font-extrabold text-slate-900 mb-4 border-l-4 border-indigo-600 pl-3">
           📖 算法原理与做题模板
         </h2>
         
-        <div v-math class="prose prose-slate max-w-none text-slate-600 text-sm leading-relaxed space-y-4">
+        <div v-math class="prose prose-slate max-w-none text-slate-600 text-base md:text-lg leading-relaxed space-y-4">
           <!-- CPU Scheduling Theory -->
           <div v-if="activeType === 'cpu'" class="space-y-4">
             <div class="p-3 bg-slate-50 border border-slate-100 rounded text-xs font-semibold text-slate-600 space-y-1">

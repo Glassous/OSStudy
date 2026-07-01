@@ -1,5 +1,5 @@
 <template>
-  <div class="py-10 max-w-4xl mx-auto px-4">
+  <div class="py-10 w-full px-6 md:px-12 max-w-none">
     <!-- Breadcrumbs -->
     <nav class="flex items-center space-x-2 text-sm text-slate-500 mb-6">
       <router-link to="/" class="hover:text-indigo-600 transition-colors">首页</router-link>
@@ -9,10 +9,10 @@
 
     <!-- Chapter Header -->
     <header class="border-b border-slate-200 pb-6 mb-8">
-      <h1 class="text-3xl font-extrabold text-slate-950 tracking-tight">
+      <h1 class="text-4xl font-extrabold text-slate-950 tracking-tight">
         {{ title }}
       </h1>
-      <p class="text-sm text-slate-400 mt-2">理论章节与课后例题习题库</p>
+      <p class="text-base text-slate-400 mt-2">理论章节与课后例题习题库</p>
     </header>
 
     <!-- Custom Tabs Navigation (Only 2 Tabs) -->
@@ -21,7 +21,7 @@
         v-for="tab in tabs" 
         :key="tab.id"
         @click="activeTab = tab.id"
-        class="pb-4 text-sm font-bold relative transition-colors duration-200"
+        class="pb-4 text-base font-bold relative transition-colors duration-200"
         :class="activeTab === tab.id ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-800'"
       >
         <span class="flex items-center gap-2">
@@ -42,8 +42,8 @@
       <div v-math v-if="activeTab === 'lecture'" class="space-y-8 animate-fade-in">
         <!-- Chapter Lecture Overview -->
         <div class="p-5 bg-indigo-50/50 border border-indigo-100/50 rounded-lg">
-          <h3 class="text-xs font-bold text-indigo-700 uppercase tracking-wider mb-2">本章核心导学</h3>
-          <p class="text-slate-600 text-sm leading-relaxed">
+          <h3 class="text-sm font-bold text-indigo-700 uppercase tracking-wider mb-2">本章核心导学</h3>
+          <p class="text-slate-650 text-base md:text-lg leading-relaxed">
             {{ lectureData?.overview || '正在加载本章理论概要...' }}
           </p>
         </div>
@@ -55,12 +55,12 @@
             :key="idx"
             class="bg-white p-6 border border-slate-200 rounded-lg"
           >
-            <h2 class="text-lg font-extrabold text-slate-900 mb-4 border-l-4 border-indigo-600 pl-3 flex items-center justify-between">
+            <h2 class="text-xl font-extrabold text-slate-900 mb-4 border-l-4 border-indigo-600 pl-3 flex items-center justify-between">
               <span>{{ sect.title }}</span>
               <span class="text-xs font-bold text-slate-300">SECTION 0{{ idx + 1 }}</span>
             </h2>
             <div 
-              class="prose prose-slate max-w-none text-slate-650 text-sm leading-relaxed" 
+              class="prose prose-slate max-w-none text-slate-650 text-base md:text-lg leading-relaxed" 
               v-html="sect.content"
             ></div>
           </section>
@@ -74,10 +74,10 @@
       <!-- 2. 章节同步例题 (包含题目、参考答案与嵌入式代码块/公式块、以及深度解析) -->
       <div v-math v-else-if="activeTab === 'questions'" class="space-y-6 animate-fade-in">
         <div class="flex items-center justify-between mb-4">
-          <p class="text-sm text-slate-500">本章共收录 <strong>{{ parsedQuestions.length }}</strong> 道课后例题。以下包含标准答案及考点解析。</p>
+          <p class="text-base text-slate-500">本章共收录 <strong>{{ parsedQuestions.length }}</strong> 道课后例题。以下包含标准答案及考点解析。</p>
           <button 
             @click="toggleAllSolutions"
-            class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
+            class="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
           >
             {{ allExpanded ? '折叠全部深度解析' : '展开全部深度解析' }}
           </button>
@@ -91,10 +91,10 @@
           >
             <!-- Question Title with Fixed Consecutive Numbers -->
             <div class="flex items-start gap-4 mb-4">
-              <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">
+              <span class="flex-shrink-0 w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-sm font-bold text-slate-600">
                 {{ idx + 1 }}
               </span>
-              <h4 class="font-extrabold text-slate-900 text-base leading-relaxed pt-0.5">
+              <h4 class="font-extrabold text-slate-900 text-lg md:text-xl leading-relaxed pt-0.5">
                 {{ q.question }}
               </h4>
             </div>
@@ -108,7 +108,7 @@
               </div>
               <!-- Code and formulas rendered as clean custom styled blocks -->
               <div 
-                class="text-slate-650 text-sm leading-relaxed" 
+                class="text-slate-650 text-base md:text-lg leading-relaxed" 
                 v-html="formatContentToHtml(q.answer)"
               ></div>
             </div>
@@ -124,7 +124,7 @@
               
               <div 
                 v-show="expandedSolutions[idx]"
-                class="mt-3 p-4 bg-slate-50 border border-slate-200 rounded text-xs text-slate-600 leading-relaxed whitespace-pre-line font-sans"
+                class="mt-3 p-4 bg-slate-50 border border-slate-200 rounded text-sm text-slate-600 leading-relaxed whitespace-pre-line font-sans"
               >
                 {{ getExplanationFor(q.id, q.question, q.answer) }}
               </div>

@@ -207,7 +207,7 @@ export function formatContentToHtml(text) {
   return blocks.map(b => {
     if (b.type === 'code') {
       const indented = indentCode(b.content)
-      return `<pre class="bg-slate-900 text-slate-100 p-4 my-4 rounded-lg font-mono text-[11px] overflow-x-auto border border-slate-800 leading-relaxed shadow-sm">${escapeHtml(indented)}</pre>`
+      return `<pre class="bg-slate-900 text-slate-100 p-4 my-4 rounded-lg font-mono text-sm overflow-x-auto border border-slate-800 leading-relaxed shadow-sm">${escapeHtml(indented)}</pre>`
     } else {
       // 解析普通文本行，以行为单位检测列表、缩进和加粗
       const textLines = b.content.split('\n')
@@ -223,7 +223,7 @@ export function formatContentToHtml(text) {
         
         // 1. 匹配独立的公式定义，例如 "Rp = 1 + 等待时间/服务时间"
         if (/^\s*[a-zA-Z_0-9\s\*\+\-\/\(\)\[\]\{\}\=\>\<]+$/.test(trimmed) && trimmed.includes('=')) {
-          renderedLines.push(`<div class="bg-indigo-50/50 border-l-4 border-indigo-500 p-3 my-3 text-slate-700 font-mono text-xs rounded-r">${escapeHtml(trimmed)}</div>`)
+          renderedLines.push(`<div class="bg-indigo-50/50 border-l-4 border-indigo-500 p-3 my-3 text-slate-700 font-mono text-base rounded-r">${escapeHtml(trimmed)}</div>`)
           continue
         }
         
@@ -231,7 +231,7 @@ export function formatContentToHtml(text) {
         if (trimmed.startsWith('•')) {
           const content = trimmed.substring(1).trim()
           const boldedContent = boldKeyTerms(content)
-          renderedLines.push(`<div class="pl-6 py-1 flex items-start gap-2 text-slate-600 text-sm leading-relaxed"><span class="text-indigo-500 select-none mt-0.5">•</span><span class="flex-1">${boldedContent}</span></div>`)
+          renderedLines.push(`<div class="pl-6 py-1 flex items-start gap-2 text-slate-600 text-base md:text-lg leading-relaxed"><span class="text-indigo-500 select-none mt-0.5">•</span><span class="flex-1">${boldedContent}</span></div>`)
           continue
         }
         
@@ -241,7 +241,7 @@ export function formatContentToHtml(text) {
           const listNum = braceListMatch[1]
           const rest = braceListMatch[2].trim()
           const boldedRest = boldKeyTerms(rest)
-          renderedLines.push(`<div class="pl-8 py-1 text-slate-600 text-sm leading-relaxed"><strong>${listNum}</strong> ${boldedRest}</div>`)
+          renderedLines.push(`<div class="pl-8 py-1 text-slate-600 text-base md:text-lg leading-relaxed"><strong>${listNum}</strong> ${boldedRest}</div>`)
           continue
         }
         
@@ -251,13 +251,13 @@ export function formatContentToHtml(text) {
           const listNum = numListMatch[1]
           const rest = numListMatch[2].trim()
           const boldedRest = boldKeyTerms(rest)
-          renderedLines.push(`<div class="pl-6 py-1 text-slate-600 text-sm leading-relaxed"><strong>${listNum}</strong> ${boldedRest}</div>`)
+          renderedLines.push(`<div class="pl-6 py-1 text-slate-600 text-base md:text-lg leading-relaxed"><strong>${listNum}</strong> ${boldedRest}</div>`)
           continue
         }
         
         // 5. 普通文本行，可加粗重点词汇
         const boldedLine = boldKeyTerms(trimmed)
-        renderedLines.push(`<p class="text-slate-600 text-sm leading-relaxed mb-2">${boldedLine}</p>`)
+        renderedLines.push(`<p class="text-slate-600 text-base md:text-lg leading-relaxed mb-2">${boldedLine}</p>`)
       }
       
       return renderedLines.join('')

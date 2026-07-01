@@ -1,5 +1,5 @@
 <template>
-  <div class="py-10 max-w-4xl mx-auto px-4">
+  <div class="py-10 w-full px-6 md:px-12 max-w-none">
     <!-- Header Section -->
     <header class="mb-16 text-center md:text-left">
       <h1 class="text-4xl md:text-5xl font-extrabold text-slate-950 tracking-tight mb-4">
