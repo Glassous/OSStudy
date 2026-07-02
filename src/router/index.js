@@ -4,6 +4,8 @@ import Home from '../views/Home.vue'
 import ChapterBase from '../views/ChapterBase.vue'
 import Algorithm from '../views/Algorithm.vue'
 import Preview from '../views/Preview.vue'
+import EssentialPoints from '../views/EssentialPoints.vue'
+
 
 // 侧栏及目录结构：普通章节依然直接跳转，算法专题则重构为 6 个独立的顶级模块
 // 每个模块下细分出专门的子专题（每个算法有单独的页面与路由）
@@ -108,6 +110,12 @@ const generateRoutes = () => {
           name: 'home',
           component: Home,
           meta: { title: '首页' }
+        },
+        {
+          path: 'essentials',
+          name: 'essentials',
+          component: EssentialPoints,
+          meta: { title: '必会知识点' }
         }
       ]
     },

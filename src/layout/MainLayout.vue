@@ -62,6 +62,22 @@
             </router-link>
           </div>
 
+          <!-- Essentials Section -->
+          <div>
+            <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">核心考点</h3>
+            <div class="space-y-0.5">
+              <router-link 
+                to="/essentials"
+                class="flex items-center space-x-3 px-3 py-2.5 rounded-md text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                active-class="bg-indigo-50 text-indigo-700 font-bold hover:bg-indigo-50"
+                @click="closeMobileMenu"
+              >
+                <BookOpenIcon class="w-3.5 h-3.5 text-indigo-500" />
+                <span class="truncate">必会知识点</span>
+              </router-link>
+            </div>
+          </div>
+
           <!-- Chapters Section (11 Chapters flat) -->
           <div>
             <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">理论知识体系</h3>
