@@ -162,7 +162,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 
 const isDownloadModalOpen = ref(false)
 
@@ -180,63 +180,11 @@ const downloadResources = ref([
   { name: '第9章-文件管理-习题及参考答案.pdf', type: 'pdf', size: '约 2.0 MB' },
   { name: '第10章-系统安全-习题及参考答案.pdf', type: 'pdf', size: '约 1.1 MB' },
   { name: '第11章-操作系统接口-习题及参考答案.pdf', type: 'pdf', size: '约 1.3 MB' },
-  { name: '第12章-openEuler操作系统-习题及参考答案.pdf', type: 'pdf', size: '约 1.5 MB' }
+  { name: '第12章-openEuler操作系统-习题及参考答案.pdf', type: 'pdf', size: '约 1.5 MB' },
+  { name: 'problem-classification.pdf', type: 'pdf', size: '约 0.4 MB' },
+  { name: '操作系统.pdf', type: 'pdf', size: '约 2.1 MB' }
 ])
 
-const fetchResources = async () => {
-  try {
-    const response = await fetch('https://file.glassous.top/?prefix=OSStudy/')
-    if (!response.ok) throw new Error('获取资源列表失败')
-    const text = await response.text()
-    
-    const parser = new DOMParser()
-    const xmlDoc = parser.parseFromString(text, 'text/xml')
-    const contents = xmlDoc.getElementsByTagName('Contents')
-    
-    const resources = []
-    for (let i = 0; i < contents.length; i++) {
-      const key = contents[i].getElementsByTagName('Key')[0]?.textContent || ''
-      const sizeBytes = parseInt(contents[i].getElementsByTagName('Size')[0]?.textContent || '0', 10)
-      
-      if (!key || key.endsWith('/') || key.includes('images/')) continue
-      
-      const fileName = key.replace('OSStudy/', '')
-      if (!fileName) continue
-      
-      const ext = fileName.split('.').pop().toLowerCase()
-      
-      let sizeStr = ''
-      if (sizeBytes > 1024 * 1024) {
-        sizeStr = `约 ${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`
-      } else if (sizeBytes > 1024) {
-        sizeStr = `约 ${(sizeBytes / 1024).toFixed(0)} KB`
-      } else {
-        sizeStr = `${sizeBytes} B`
-      }
-      
-      resources.push({
-        name: fileName,
-        type: ext,
-        size: sizeStr
-      })
-    }
-    
-    if (resources.length > 0) {
-      resources.sort((a, b) => {
-        if (a.type === 'md' && b.type !== 'md') return -1
-        if (a.type !== 'md' && b.type === 'md') return 1
-        return a.name.localeCompare(b.name, 'zh-CN', { numeric: true })
-      })
-      downloadResources.value = resources
-    }
-  } catch (err) {
-    console.error('动态获取资源列表失败:', err)
-  }
-}
-
-onMounted(() => {
-  fetchResources()
-})
 
 const getDownloadUrl = (fileName) => {
   return 'https://file.glassous.top/OSStudy/' + encodeURIComponent(fileName)
