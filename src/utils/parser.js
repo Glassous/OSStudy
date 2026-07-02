@@ -344,7 +344,7 @@ function escapeHtml(text) {
     .replace(/'/g, '&#039;')
 }
 
-function highlightCode(codeText) {
+export function highlightCode(codeText) {
   let escaped = escapeHtml(codeText)
   
   const placeholders = []
