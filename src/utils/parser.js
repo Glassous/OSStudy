@@ -139,7 +139,25 @@ function indentCode(codeText) {
 export function formatContentToHtml(text) {
   if (!text) return ''
   
-  const lines = text.split('\n')
+  let formattedText = text
+  const tablePlaceholders = []
+  
+  formattedText = formattedText.replace(/<table[\s\S]*?<\/table>/gi, (match) => {
+    const placeholder = `\n___TABLE_PLACEHOLDER_${tablePlaceholders.length}___\n`
+    let styledTable = match
+      .replace(/<table([^>]*)>/gi, '<div class="overflow-x-auto my-4 border border-slate-200 rounded-lg shadow-sm"><table class="min-w-full divide-y divide-slate-200 text-sm" $1>')
+      .replace(/<\/table>/gi, '</table></div>')
+      .replace(/<thead([^>]*)>/gi, '<thead class="bg-slate-50 font-semibold text-slate-700" $1>')
+      .replace(/<tbody([^>]*)>/gi, '<tbody class="divide-y divide-slate-150 bg-white text-slate-650" $1>')
+      .replace(/<tr([^>]*)>/gi, '<tr class="hover:bg-slate-50/50 transition-colors" $1>')
+      .replace(/<th([^>]*)>/gi, '<th class="px-4 py-3 text-left font-semibold border-r border-slate-200 last:border-0" $1>')
+      .replace(/<td([^>]*)>/gi, '<td class="px-4 py-2.5 border-r border-slate-150 last:border-0 whitespace-pre-wrap" $1>')
+    
+    tablePlaceholders.push(styledTable)
+    return placeholder
+  })
+  
+  const lines = formattedText.split('\n')
   const blocks = []
   let currentBlock = []
   let isCurrentBlockCode = false
@@ -221,42 +239,80 @@ export function formatContentToHtml(text) {
           continue
         }
         
+        // 0. 匹配并提取图片标签占位符，防止在后续的 HTML 实体转义和加粗逻辑中被损坏
+        let lineVal = trimmed
+        const imgPlaceholders = []
+        
+        lineVal = lineVal.replace(/<img\s+[^>]*src=["']([^"']+)["'][^>]*\/?>/gi, (match, src) => {
+          const placeholder = `___IMG_PLACEHOLDER_${imgPlaceholders.length}___`
+          let absoluteSrc = src
+          if (!src.startsWith('http')) {
+            absoluteSrc = `https://file.glassous.top/OSStudy/images/${src}`
+          }
+          imgPlaceholders.push(`<div class="my-4 flex justify-center"><img class="max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl h-auto rounded-lg shadow-sm border border-slate-200/80" src="${absoluteSrc}" alt="Image" /></div>`)
+          return placeholder
+        })
+        
+        // 如果整行是一个表格占位符，直接输出其渲染后的 HTML
+        const singleTableMatch = lineVal.match(/^___TABLE_PLACEHOLDER_(\d+)___$/)
+        if (singleTableMatch) {
+          const idx = parseInt(singleTableMatch[1], 10)
+          renderedLines.push(tablePlaceholders[idx])
+          continue
+        }
+        
+        // 如果整行只是一个图片占位符，直接输出，不包裹在段落中
+        const singleImgMatch = lineVal.match(/^___IMG_PLACEHOLDER_(\d+)___$/)
+        if (singleImgMatch) {
+          const idx = parseInt(singleImgMatch[1], 10)
+          renderedLines.push(imgPlaceholders[idx])
+          continue
+        }
+        
+        const restorePlaceholders = (text) => {
+          let res = text
+          for (let k = 0; k < imgPlaceholders.length; k++) {
+            res = res.replace(`___IMG_PLACEHOLDER_${k}___`, imgPlaceholders[k])
+          }
+          return res
+        }
+        
         // 1. 匹配独立的公式定义，例如 "Rp = 1 + 等待时间/服务时间"
-        if (/^\s*[a-zA-Z_0-9\s\*\+\-\/\(\)\[\]\{\}\=\>\<]+$/.test(trimmed) && trimmed.includes('=')) {
-          renderedLines.push(`<div class="bg-indigo-50/50 border-l-4 border-indigo-500 p-3 my-3 text-slate-700 font-mono text-base rounded-r">${escapeHtml(trimmed)}</div>`)
+        if (/^\s*[a-zA-Z_0-9\s\*\+\-\/\(\)\[\]\{\}\=\>\<]+$/.test(lineVal) && lineVal.includes('=')) {
+          renderedLines.push(`<div class="bg-indigo-50/50 border-l-4 border-indigo-500 p-3 my-3 text-slate-700 font-mono text-base rounded-r">${escapeHtml(lineVal)}</div>`)
           continue
         }
         
         // 2. 匹配 Bullet 点开头的行 (•)
-        if (trimmed.startsWith('•')) {
-          const content = trimmed.substring(1).trim()
-          const boldedContent = boldKeyTerms(content)
+        if (lineVal.startsWith('•')) {
+          const content = lineVal.substring(1).trim()
+          const boldedContent = restorePlaceholders(boldKeyTerms(content))
           renderedLines.push(`<div class="pl-6 py-1 flex items-start gap-2 text-slate-600 text-base md:text-lg leading-relaxed"><span class="text-indigo-500 select-none mt-0.5">•</span><span class="flex-1">${boldedContent}</span></div>`)
           continue
         }
         
         // 3. 匹配 "（1）"、"（一）" 开头的行（进行缩进并加粗首部标题）
-        const braceListMatch = trimmed.match(/^([（\(]\d+[）\)]|[（\(][一二三四五六七八九十]+[）\)])(.*)/)
+        const braceListMatch = lineVal.match(/^([（\(]\d+[）\)]|[（\(][一二三四五六七八九十]+[）\)])(.*)/)
         if (braceListMatch) {
           const listNum = braceListMatch[1]
           const rest = braceListMatch[2].trim()
-          const boldedRest = boldKeyTerms(rest)
+          const boldedRest = restorePlaceholders(boldKeyTerms(rest))
           renderedLines.push(`<div class="pl-8 py-1 text-slate-600 text-base md:text-lg leading-relaxed"><strong>${listNum}</strong> ${boldedRest}</div>`)
           continue
         }
         
         // 4. 匹配 "1. "、"一、"、"① " 开头的行（进行缩进并加粗首部标题）
-        const numListMatch = trimmed.match(/^(\d+\.|[一二三四五六七八九十]+、|[①②③④⑤⑥⑦⑧⑨⑩])(.*)/)
+        const numListMatch = lineVal.match(/^(\d+\.|[一二三四五六七八九十]+、|[①②③④⑤⑥⑦⑧⑨⑩])(.*)/)
         if (numListMatch) {
           const listNum = numListMatch[1]
           const rest = numListMatch[2].trim()
-          const boldedRest = boldKeyTerms(rest)
+          const boldedRest = restorePlaceholders(boldKeyTerms(rest))
           renderedLines.push(`<div class="pl-6 py-1 text-slate-600 text-base md:text-lg leading-relaxed"><strong>${listNum}</strong> ${boldedRest}</div>`)
           continue
         }
         
         // 5. 普通文本行，可加粗重点词汇
-        const boldedLine = boldKeyTerms(trimmed)
+        const boldedLine = restorePlaceholders(boldKeyTerms(lineVal))
         renderedLines.push(`<p class="text-slate-600 text-base md:text-lg leading-relaxed mb-2">${boldedLine}</p>`)
       }
       

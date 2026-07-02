@@ -77,6 +77,53 @@ N ≤ 3.5
 根据书中例题数据，当分配 Request0(0, 1, 0) 后，可用资源 Available 变为 (1, 5, 2)。此时进行安全性检查，无法找到一个安全序列使得所有进程顺利完成，因此系统处于不安全状态，不能将资源分配给它。
 
 11. 在银行家算法中，若出现表 5-8 所示的资源分配情况，请问：
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2">Process</th>
+      <th colspan="4">Allocation</th>
+      <th colspan="4">Need</th>
+      <th colspan="4">Available</th>
+    </tr>
+    <tr>
+      <th>A</th><th>B</th><th>C</th><th>D</th>
+      <th>A</th><th>B</th><th>C</th><th>D</th>
+      <th>A</th><th>B</th><th>C</th><th>D</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>P1</td>
+      <td>0</td><td>0</td><td>3</td><td>2</td>
+      <td>0</td><td>0</td><td>1</td><td>2</td>
+      <td>1</td><td>6</td><td>2</td><td>2</td>
+    </tr>
+    <tr>
+      <td>P2</td>
+      <td>1</td><td>0</td><td>0</td><td>0</td>
+      <td>1</td><td>9</td><td>5</td><td>0</td>
+      <td></td><td></td><td></td><td></td>
+    </tr>
+    <tr>
+      <td>P3</td>
+      <td>1</td><td>3</td><td>5</td><td>4</td>
+      <td>2</td><td>3</td><td>5</td><td>6</td>
+      <td></td><td></td><td></td><td></td>
+    </tr>
+    <tr>
+      <td>P4</td>
+      <td>0</td><td>3</td><td>3</td><td>2</td>
+      <td>0</td><td>6</td><td>5</td><td>2</td>
+      <td></td><td></td><td></td><td></td>
+    </tr>
+    <tr>
+      <td>P5</td>
+      <td>0</td><td>0</td><td>1</td><td>4</td>
+      <td>0</td><td>6</td><td>5</td><td>6</td>
+      <td></td><td></td><td></td><td></td>
+    </tr>
+  </tbody>
+</table>
 1）该状态是否安全？
 2）若进程 P2 提出请求 Request2(1，2，2，2) 后，系统能否将资源分配给它？
 
@@ -87,6 +134,46 @@ N ≤ 3.5
 • 其次，Request2(1, 2, 2, 2) ≤ Available(1, 6, 2, 2) 不成立。因此可用资源不足，P2 必须等待，系统不能分配。
 
 12. 有 5 个进程 P1、P2、P3、P4、P5 共用三类资源 A（17个）、B（5个）、C（20个），T0 时刻系统状态如下。
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2">进程</th>
+      <th colspan="3">最大需求</th>
+      <th colspan="3">已分配</th>
+    </tr>
+    <tr>
+      <th>A</th><th>B</th><th>C</th>
+      <th>A</th><th>B</th><th>C</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>P1</td>
+      <td>5</td><td>5</td><td>9</td>
+      <td>2</td><td>1</td><td>2</td>
+    </tr>
+    <tr>
+      <td>P2</td>
+      <td>5</td><td>3</td><td>6</td>
+      <td>4</td><td>0</td><td>2</td>
+    </tr>
+    <tr>
+      <td>P3</td>
+      <td>4</td><td>0</td><td>11</td>
+      <td>4</td><td>0</td><td>5</td>
+    </tr>
+    <tr>
+      <td>P4</td>
+      <td>4</td><td>2</td><td>5</td>
+      <td>2</td><td>0</td><td>4</td>
+    </tr>
+    <tr>
+      <td>P5</td>
+      <td>4</td><td>2</td><td>4</td>
+      <td>3</td><td>1</td><td>4</td>
+    </tr>
+  </tbody>
+</table>
 请问：
 1）T0时刻是否为安全状态？若安全请给出安全系列。
 2）T0时刻，P2 提出请求 Request2(0，3，4)，能否分配？为什么？
@@ -100,9 +187,11 @@ N ≤ 3.5
 （4）不能。分配后系统可用资源不足，且会进入死锁/不安全状态。
 
 13. 试简化图 5-6 中的资源分配图，并利用死锁定理给出结论。
+<img src="5.1.png" />
 
 答：根据死锁定理，简化资源分配图的步骤如下：
 （1）寻找一个非阻塞且非孤立的进程节点，若其申请的资源可以得到满足，则释放其占有的全部资源，使之成为孤立节点。
 （2）重复此过程，直到找不到满足条件的进程。
 （3）若最终所有进程节点都成为孤立节点，则该状态无死锁；若仍存在非孤立节点，则系统中存在死锁。
 结论：经简化后，图中仍存在循环等待的非孤立节点，故系统当前存在死锁。
+<img src="5.2.png" />

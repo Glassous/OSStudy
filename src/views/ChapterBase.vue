@@ -94,9 +94,10 @@
               <span class="flex-shrink-0 w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-sm font-bold text-slate-600">
                 {{ idx + 1 }}
               </span>
-              <h4 class="font-extrabold text-slate-900 text-lg md:text-xl leading-relaxed pt-0.5">
-                {{ q.question }}
-              </h4>
+              <h4 
+                class="font-extrabold text-slate-900 text-lg md:text-xl leading-relaxed pt-0.5"
+                v-html="formatContentToHtml(q.question)"
+              ></h4>
             </div>
             
             <!-- Answer Area (With Code Blocks and Formula Blocks) -->

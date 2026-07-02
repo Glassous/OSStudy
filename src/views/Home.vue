@@ -198,7 +198,7 @@ const fetchResources = async () => {
       const key = contents[i].getElementsByTagName('Key')[0]?.textContent || ''
       const sizeBytes = parseInt(contents[i].getElementsByTagName('Size')[0]?.textContent || '0', 10)
       
-      if (!key || key.endsWith('/')) continue
+      if (!key || key.endsWith('/') || key.includes('images/')) continue
       
       const fileName = key.replace('OSStudy/', '')
       if (!fileName) continue
