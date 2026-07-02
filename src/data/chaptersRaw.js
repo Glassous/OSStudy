@@ -9,6 +9,7 @@ import ch8Raw from '../../docs/第8章-设备管理-习题及参考答案.txt?ra
 import ch9Raw from '../../docs/第9章-文件管理-习题及参考答案.txt?raw'
 import ch10Raw from '../../docs/第10章-系统安全-习题及参考答案.txt?raw'
 import ch11Raw from '../../docs/第11章-操作系统接口-习题及参考答案.txt?raw'
+import ch12Raw from '../../docs/第12章-openEuler操作系统-习题及参考答案.txt?raw'
 
 export const rawTexts = {
   chapter1: ch1Raw,
@@ -21,5 +22,6 @@ export const rawTexts = {
   chapter8: ch8Raw,
   chapter9: ch9Raw,
   chapter10: ch10Raw,
-  chapter11: ch11Raw
+  chapter11: ch11Raw,
+  chapter12: ch12Raw
 }

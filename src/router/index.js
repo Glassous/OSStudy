@@ -19,6 +19,7 @@ export const menuStructure = [
   { path: 'chapter9', name: 'chapter9', meta: { title: '第9章 文件管理' } },
   { path: 'chapter10', name: 'chapter10', meta: { title: '第10章 系统安全' } },
   { path: 'chapter11', name: 'chapter11', meta: { title: '第11章 操作系统接口' } },
+  { path: 'chapter12', name: 'chapter12', meta: { title: '第12章 openEuler操作系统' } },
   
   // 顶级模块一
   {

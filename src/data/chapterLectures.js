@@ -205,5 +205,22 @@ export const chapterLectures = {
         content: '<p class="leading-relaxed mb-4"><strong>API (应用程序接口)</strong> 是在用户态库中定义的接口规范（如 POSIX API，Windows API），而<strong>系统调用</strong>是内核提供的受保护入口。许多 API 底层调用了系统调用（如 C语言的 <code>printf</code> 底层调用了 <code>write</code> 系统调用），但也有一些 API 完全在用户态实现（如数学计算函数 <code>abs</code>）。</p>'
       }
     ]
+  },
+  chapter12: {
+    overview: 'openEuler 操作系统作为国产开源操作系统的杰出代表，致力于提供安全、高效、多样性算力支持的多场景操作系统。本章涵盖 openEuler 的体系架构、基本用户与组权限管理、软件管理工具 DNF，以及在大数据平台安装中的配置实践。',
+    sections: [
+      {
+        title: 'openEuler 体系结构与版本',
+        content: '<p class="leading-relaxed mb-4">openEuler 是一款开源操作系统，支持 ARM、x86、RISC-V 等多种 CPU 架构。其采用五层架构设计，从底层到上层依次为：内核层、系统服务层、平台中间件层、应用开发与运维工具层、用户接口与安全控制层。</p><p class="leading-relaxed mb-4">版本主要分为创新版本（半年发布一次，支持技术创新，如 20.09）和 LTS 稳定版本（两年发布一次，提供长期支持，如 20.03 LTS）。</p>'
+      },
+      {
+        title: '用户管理与文件目录',
+        content: '<p class="leading-relaxed mb-4">openEuler 采用“一切皆文件”的设计理念。目录结构呈树形，核心目录包括 <code>/bin</code> (常用命令)、<code>/boot</code> (引导核心文件)、<code>/dev</code> (外部设备) 等。用户和组是其安全权限的基础，每一个用户都有私有组并被分配特定 ID 号，通过 useradd, passwd, groupadd 等命令进行维护。</p>'
+      },
+      {
+        title: '软件管理工具 DNF 与集群认证',
+        content: '<p class="leading-relaxed mb-4">DNF 是 openEuler 的下一代软件包管理工具，完全兼容 YUM。它能自动处理 RPM 包的依赖关系以执行安装、升级或卸载。</p><p class="leading-relaxed mb-4">在部署分布式 Hadoop 集群等应用时，为了满足自动化运维和简化多节点部署的需求，通常需要利用 SSH 密钥对配置免密钥登录认证，确保节点间通信的安全与顺畅。</p>'
+      }
+    ]
   }
 }

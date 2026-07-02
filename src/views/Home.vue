@@ -162,12 +162,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const isDownloadModalOpen = ref(false)
 
-// 资源下载的列表，基于 file.glassous.top/OSStudy/
-const downloadResources = [
+// 资源下载的列表，默认提供静态基础数据作为初始化和兜底，随后通过接口获取最新文件
+const downloadResources = ref([
   { name: '操作系统算法与代码设计题.md', type: 'md', size: '约 60 KB' },
   { name: '第1章-操作系统概述-习题及参考答案.pdf', type: 'pdf', size: '约 1.2 MB' },
   { name: '第2章-进程与线程-习题及参考答案.pdf', type: 'pdf', size: '约 1.5 MB' },
@@ -178,8 +178,65 @@ const downloadResources = [
   { name: '第7章-虚拟存储管理-习题及参考答案.pdf', type: 'pdf', size: '约 1.9 MB' },
   { name: '第8章-设备管理-习题及参考答案.pdf', type: 'pdf', size: '约 1.6 MB' },
   { name: '第9章-文件管理-习题及参考答案.pdf', type: 'pdf', size: '约 2.0 MB' },
-  { name: '第10章-系统安全-习题及参考答案.pdf', type: 'pdf', size: '约 1.1 MB' }
-]
+  { name: '第10章-系统安全-习题及参考答案.pdf', type: 'pdf', size: '约 1.1 MB' },
+  { name: '第11章-操作系统接口-习题及参考答案.pdf', type: 'pdf', size: '约 1.3 MB' },
+  { name: '第12章-openEuler操作系统-习题及参考答案.pdf', type: 'pdf', size: '约 1.5 MB' }
+])
+
+const fetchResources = async () => {
+  try {
+    const response = await fetch('https://file.glassous.top/?prefix=OSStudy/')
+    if (!response.ok) throw new Error('获取资源列表失败')
+    const text = await response.text()
+    
+    const parser = new DOMParser()
+    const xmlDoc = parser.parseFromString(text, 'text/xml')
+    const contents = xmlDoc.getElementsByTagName('Contents')
+    
+    const resources = []
+    for (let i = 0; i < contents.length; i++) {
+      const key = contents[i].getElementsByTagName('Key')[0]?.textContent || ''
+      const sizeBytes = parseInt(contents[i].getElementsByTagName('Size')[0]?.textContent || '0', 10)
+      
+      if (!key || key.endsWith('/')) continue
+      
+      const fileName = key.replace('OSStudy/', '')
+      if (!fileName) continue
+      
+      const ext = fileName.split('.').pop().toLowerCase()
+      
+      let sizeStr = ''
+      if (sizeBytes > 1024 * 1024) {
+        sizeStr = `约 ${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`
+      } else if (sizeBytes > 1024) {
+        sizeStr = `约 ${(sizeBytes / 1024).toFixed(0)} KB`
+      } else {
+        sizeStr = `${sizeBytes} B`
+      }
+      
+      resources.push({
+        name: fileName,
+        type: ext,
+        size: sizeStr
+      })
+    }
+    
+    if (resources.length > 0) {
+      resources.sort((a, b) => {
+        if (a.type === 'md' && b.type !== 'md') return -1
+        if (a.type !== 'md' && b.type === 'md') return 1
+        return a.name.localeCompare(b.name, 'zh-CN', { numeric: true })
+      })
+      downloadResources.value = resources
+    }
+  } catch (err) {
+    console.error('动态获取资源列表失败:', err)
+  }
+}
+
+onMounted(() => {
+  fetchResources()
+})
 
 const getDownloadUrl = (fileName) => {
   return 'https://file.glassous.top/OSStudy/' + encodeURIComponent(fileName)
