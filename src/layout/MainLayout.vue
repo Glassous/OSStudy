@@ -75,6 +75,15 @@
                 <BookOpenIcon class="w-3.5 h-3.5 text-indigo-500" />
                 <span class="truncate">必会知识点</span>
               </router-link>
+              <router-link 
+                to="/interactive"
+                class="flex items-center space-x-3 px-3 py-2.5 rounded-md text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                active-class="bg-indigo-50 text-indigo-700 font-bold hover:bg-indigo-50"
+                @click="closeMobileMenu"
+              >
+                <MonitorIcon class="w-3.5 h-3.5 text-purple-500" />
+                <span class="truncate">交互式算法演示</span>
+              </router-link>
             </div>
           </div>
 
@@ -172,7 +181,8 @@ import {
   ChevronDown as ChevronDownIcon, 
   ChevronRight as ChevronRightIcon,
   Menu as MenuIcon,
-  X as XIcon
+  X as XIcon,
+  Monitor as MonitorIcon
 } from '@lucide/vue'
 
 const route = useRoute()

@@ -169,6 +169,8 @@ const isDownloadModalOpen = ref(false)
 // 资源下载的列表，默认提供静态基础数据作为初始化和兜底，随后通过接口获取最新文件
 const downloadResources = ref([
   { name: '操作系统算法与代码设计题.md', type: 'md', size: '约 60 KB' },
+  { name: '操作系统.pdf', type: 'pdf', size: '约 2.1 MB' },
+  { name: 'problem-classification.pdf', type: 'pdf', size: '约 0.4 MB' },
   { name: '第1章-操作系统概述-习题及参考答案.pdf', type: 'pdf', size: '约 1.2 MB' },
   { name: '第2章-进程与线程-习题及参考答案.pdf', type: 'pdf', size: '约 1.5 MB' },
   { name: '第3章-进程同步-习题及参考答案.pdf', type: 'pdf', size: '约 2.1 MB' },
@@ -180,9 +182,7 @@ const downloadResources = ref([
   { name: '第9章-文件管理-习题及参考答案.pdf', type: 'pdf', size: '约 2.0 MB' },
   { name: '第10章-系统安全-习题及参考答案.pdf', type: 'pdf', size: '约 1.1 MB' },
   { name: '第11章-操作系统接口-习题及参考答案.pdf', type: 'pdf', size: '约 1.3 MB' },
-  { name: '第12章-openEuler操作系统-习题及参考答案.pdf', type: 'pdf', size: '约 1.5 MB' },
-  { name: 'problem-classification.pdf', type: 'pdf', size: '约 0.4 MB' },
-  { name: '操作系统.pdf', type: 'pdf', size: '约 2.1 MB' }
+  { name: '第12章-openEuler操作系统-习题及参考答案.pdf', type: 'pdf', size: '约 1.5 MB' }
 ])
 
 

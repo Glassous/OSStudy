@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>进程状态转换图 - 操作系统复习工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .mode-switch {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .mode-btn {
+            padding: 10px 25px;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .mode-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 0;
+        }
+
+        .diagram-section {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f8f9fa;
+        }
+
+        .svg-container {
+            position: relative;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        svg {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .state-circle {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .state-circle:hover {
+            filter: brightness(1.1);
+        }
+
+        .transition-arrow {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .transition-arrow:hover {
+            stroke-width: 3;
+        }
+
+        .transition-arrow.active {
+            stroke: #ff6b6b;
+            stroke-width: 4;
+        }
+
+        .transition-text {
+            font-size: 12px;
+            font-weight: bold;
+            pointer-events: none;
+            text-shadow: 0 0 3px rgba(255,255,255,0.8);
+        }
+
+        .transition-detail {
+            position: absolute;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            max-width: 250px;
+            display: none;
+            z-index: 100;
+            font-size: 14px;
+        }
+
+        .transition-detail.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .transition-detail h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .transition-detail ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .transition-detail li {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .sidebar {
+            background: white;
+            border-left: 1px solid #eee;
+            padding: 30px;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .sidebar h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .knowledge-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .knowledge-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .knowledge-card p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .exam-questions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            margin-top: 30px;
+        }
+
+        .exam-questions h3 {
+            color: #856404;
+            border-color: #ffc107;
+        }
+
+        .exam-item {
+            background: white;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 3px solid #ffc107;
+        }
+
+        .exam-item .year {
+            font-weight: bold;
+            color: #856404;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .quiz-section {
+            margin-top: 30px;
+        }
+
+        .quiz-btn {
+            width: 100%;
+            padding: 15px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .quiz-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .quiz-panel {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .quiz-panel.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .question {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 12px 15px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .option.wrong {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding: 12px;
+            background: #e7f3ff;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                border-left: none;
+                border-top: 1px solid #eee;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>进程状态转换图</h1>
+            <p>操作系统复习工具 - 点击箭头查看详细说明</p>
+            <div class="mode-switch">
+                <button class="mode-btn active" onclick="switchMode('three')">三态图</button>
+                <button class="mode-btn" onclick="switchMode('five')">五态图</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="diagram-section">
+                <div class="svg-container">
+                    <svg id="processStateDiagram" width="600" height="450" viewBox="0 0 600 450">
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+                            </marker>
+                        </defs>
+
+                        <!-- 三态图 -->
+                        <g id="threeStateDiagram">
+                            <!-- 箭头: 就绪→执行 -->
+                            <line class="transition-arrow" data-transition="ready-to-running" x1="180" y1="200" x2="220" y2="120" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)" />
+                            <text class="transition-text" x="170" y="150">①调度</text>
+
+                            <!-- 箭头: 执行→就绪 -->
+                            <line class="transition-arrow" data-transition="running-to-ready" x1="280" y1="120" x2="320" y2="200" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)" />
+                            <text class="transition-text" x="285" y="175">②时间片用完/抢占</text>
+
+                            <!-- 箭头: 执行→阻塞 -->
+                            <line class="transition-arrow" data-transition="running-to-blocked" x1="280" y1="120" x2="480" y2="120" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)" />
+                            <text class="transition-text" x="350" y="110">③等待I/O</text>
+
+                            <!-- 箭头: 阻塞→就绪 -->
+                            <line class="transition-arrow" data-transition="blocked-to-ready" x1="520" y1="160" x2="250" y2="240" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)" />
+                            <text class="transition-text" x="380" y="220">④I/O完成</text>
+
+                            <!-- 就绪状态 -->
+                            <circle class="state-circle" data-state="ready" cx="150" cy="250" r="50" fill="#4a90e2" stroke="#2c5aa0" stroke-width="3" />
+                            <text x="150" y="250" text-anchor="middle" dy="5" fill="white" font-weight="bold" font-size="14">就绪</text>
+                            <text x="150" y="270" text-anchor="middle" dy="5" fill="white" font-size="10">Ready</text>
+
+                            <!-- 执行状态 -->
+                            <circle class="state-circle" data-state="running" cx="250" cy="80" r="50" fill="#28a745" stroke="#1e7e34" stroke-width="3" />
+                            <text x="250" y="80" text-anchor="middle" dy="5" fill="white" font-weight="bold" font-size="14">执行</text>
+                            <text x="250" y="100" text-anchor="middle" dy="5" fill="white" font-size="10">Running</text>
+
+                            <!-- 阻塞状态 -->
+                            <circle class="state-circle" data-state="blocked" cx="520" cy="200" r="50" fill="#fd7e14" stroke="#d63384" stroke-width="3" />
+                            <text x="520" y="200" text-anchor="middle" dy="5" fill="white" font-weight="bold" font-size="14">阻塞</text>
+                            <text x="520" y="220" text-anchor="middle" dy="5" fill="white" font-size="10">Blocked</text>
+                        </g>
+
+                        <!-- 五态图 -->
+                        <g id="fiveStateDiagram" style="display: none;">
+                            <!-- 创建→就绪 -->
+                            <line class="transition-arrow" data-transition="new-to-ready" x1="80" y1="250" x2="100" y2="250" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)" />
+                            <text class="transition-text" x="70" y="235">创建完成</text>
+
+                            <!-- 箭头: 就绪→执行 -->
+                            <line class="transition-arrow" data-transition="ready-to-running" x1="180" y1="200" x2="220" y2="120" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)" />
+                            <text class="transition-text" x="170" y="150">①调度</text>
+
+                            <!-- 箭头: 执行→就绪 -->
+                            <line class="transition-arrow" data-transition="running-to-ready" x1="280" y1="120" x2="320" y2="200" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)" />
+                            <text class="transition-text" x="285" y="175">②时间片用完/抢占</text>
+
+                            <!-- 箭头: 执行→阻塞 -->
+                            <line class="transition-arrow" data-transition="running-to-blocked" x1="280" y1="120" x2="480" y2="120" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)" />
+                            <text class="transition-text" x="350" y="110">③等待I/O</text>
+
+                            <!-- 箭头: 阻塞→就绪 -->
+                            <line class="transition-arrow" data-transition="blocked-to-ready" x1="520" y1="160" x2="250" y2="240" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)" />
+                            <text class="transition-text" x="380" y="220">④I/O完成</text>
+
+                            <!-- 执行→终止 -->
+                            <line class="transition-arrow" data-transition="running-to-terminated" x1="300" y1="80" x2="390" y2="80" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)" />
+                            <text class="transition-text" x="320" y="70">进程结束</text>
+
+                            <!-- 创建状态 -->
+                            <circle class="state-circle" data-state="new" cx="40" cy="250" r="40" fill="#6c757d" stroke="#495057" stroke-width="3" />
+                            <text x="40" y="250" text-anchor="middle" dy="5" fill="white" font-weight="bold" font-size="12">创建</text>
+                            <text x="40" y="268" text-anchor="middle" dy="5" fill="white" font-size="9">New</text>
+
+                            <!-- 就绪状态 -->
+                            <circle class="state-circle" data-state="ready" cx="150" cy="250" r="50" fill="#4a90e2" stroke="#2c5aa0" stroke-width="3" />
+                            <text x="150" y="250" text-anchor="middle" dy="5" fill="white" font-weight="bold" font-size="14">就绪</text>
+                            <text x="150" y="270" text-anchor="middle" dy="5" fill="white" font-size="10">Ready</text>
+
+                            <!-- 执行状态 -->
+                            <circle class="state-circle" data-state="running" cx="250" cy="80" r="50" fill="#28a745" stroke="#1e7e34" stroke-width="3" />
+                            <text x="250" y="80" text-anchor="middle" dy="5" fill="white" font-weight="bold" font-size="14">执行</text>
+                            <text x="250" y="100" text-anchor="middle" dy="5" fill="white" font-size="10">Running</text>
+
+                            <!-- 阻塞状态 -->
+                            <circle class="state-circle" data-state="blocked" cx="520" cy="200" r="50" fill="#fd7e14" stroke="#d63384" stroke-width="3" />
+                            <text x="520" y="200" text-anchor="middle" dy="5" fill="white" font-weight="bold" font-size="14">阻塞</text>
+                            <text x="520" y="220" text-anchor="middle" dy="5" fill="white" font-size="10">Blocked</text>
+
+                            <!-- 终止状态 -->
+                            <circle class="state-circle" data-state="terminated" cx="430" cy="80" r="40" fill="#dc3545" stroke="#c82333" stroke-width="3" />
+                            <text x="430" y="80" text-anchor="middle" dy="5" fill="white" font-weight="bold" font-size="12">终止</text>
+                            <text x="430" y="98" text-anchor="middle" dy="5" fill="white" font-size="9">Terminated</text>
+                        </g>
+                    </svg>
+
+                    <div id="transitionDetail" class="transition-detail">
+                        <h4 id="detailTitle">详细说明</h4>
+                        <p id="detailDescription"></p>
+                        <ul id="detailEvents"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <h3>状态说明</h3>
+
+                <div class="knowledge-card">
+                    <h4>就绪状态 (Ready)</h4>
+                    <p>进程已获得除CPU外的所有必要资源，等待系统分配CPU。一旦获得CPU，就可以立即执行。</p>
+                </div>
+
+                <div class="knowledge-card">
+                    <h4>执行状态 (Running)</h4>
+                    <p>进程已获得CPU，正在执行指令。单CPU系统中，同一时刻只有一个进程处于执行状态。</p>
+                </div>
+
+                <div class="knowledge-card">
+                    <h4>阻塞状态 (Blocked)</h4>
+                    <p>进程因等待某个事件（如I/O完成、信号量等）而暂停执行。此时即使分配CPU也无法继续执行。</p>
+                </div>
+
+                <div class="knowledge-card" id="newStateCard" style="display: none;">
+                    <h4>创建状态 (New)</h4>
+                    <p>进程正在被创建，系统正在为其分配必要的资源和数据结构。</p>
+                </div>
+
+                <div class="knowledge-card" id="terminatedStateCard" style="display: none;">
+                    <h4>终止状态 (Terminated)</h4>
+                    <p>进程已执行完毕，系统正在回收其占用的资源。</p>
+                </div>
+
+                <div class="knowledge-card exam-questions">
+                    <h3>真题回顾</h3>
+
+                    <div class="exam-item">
+                        <span class="year">2024-2025</span>
+                        请说明引起各种状态转换的典型事件
+                    </div>
+
+                    <div class="exam-item">
+                        <span class="year">2023-2024</span>
+                        请画图展示进程的5种基本状态及其转换关系
+                    </div>
+
+                    <div class="exam-item">
+                        <span class="year">2022-2023</span>
+                        请画图展示进程的5种基本状态及其转换关系
+                    </div>
+                </div>
+
+                <div class="quiz-section">
+                    <button class="quiz-btn" onclick="startQuiz()">开始自测</button>
+                    <div id="quizPanel" class="quiz-panel">
+                        <div class="question" id="quizQuestion"></div>
+                        <div class="options" id="quizOptions"></div>
+                        <div class="explanation" id="quizExplanation"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const transitionData = {
+            'ready-to-running': {
+                title: '① 就绪 → 执行',
+                description: '进程调度程序将CPU分配给就绪进程',
+                events: ['时间片轮转调度', '优先级调度', '短作业优先调度']
+            },
+            'running-to-ready': {
+                title: '② 执行 → 就绪',
+                description: '进程被迫释放CPU，但仍保持就绪状态',
+                events: ['时间片用完', '高优先级进程抢占', '被中断打断']
+            },
+            'running-to-blocked': {
+                title: '③ 执行 → 阻塞',
+                description: '进程请求某个资源或等待事件，无法继续执行',
+                events: ['请求I/O操作', '等待信号量', '等待消息']
+            },
+            'blocked-to-ready': {
+                title: '④ 阻塞 → 就绪',
+                description: '进程等待的事件已经发生，可以重新竞争CPU',
+                events: ['I/O操作完成', '信号量释放', '收到消息']
+            },
+            'new-to-ready': {
+                title: '创建 → 就绪',
+                description: '新进程创建完成，进入就绪队列等待调度',
+                events: ['PCB创建完成', '资源分配完成']
+            },
+            'running-to-terminated': {
+                title: '执行 → 终止',
+                description: '进程执行完成或异常终止',
+                events: ['正常结束', '异常终止', '被kill命令杀死']
+            }
+        };
+
+        const quizQuestions = [
+            {
+                question: '就绪→执行是由什么引起的？',
+                options: ['时间片用完', '进程调度', 'I/O完成', '等待事件'],
+                correct: 1,
+                explanation: '就绪→执行由进程调度引起。调度程序从就绪队列中选择一个进程，将CPU分配给它。'
+            },
+            {
+                question: '执行→就绪的主要原因是？',
+                options: ['进程调度', '时间片用完/抢占', 'I/O操作', '进程终止'],
+                correct: 1,
+                explanation: '执行→就绪的主要原因是时间片用完或被高优先级进程抢占。进程释放CPU但保持就绪状态。'
+            },
+            {
+                question: '执行→阻塞表示进程正在？',
+                options: ['等待CPU', '等待I/O或事件', '被调度', '执行完毕'],
+                correct: 1,
+                explanation: '执行→阻塞表示进程因等待I/O操作或某个事件而暂停执行，即使获得CPU也无法继续。'
+            },
+            {
+                question: '阻塞→就绪说明？',
+                options: ['进程被调度', '时间片用完', '等待的事件已发生', '进程终止'],
+                correct: 2,
+                explanation: '阻塞→就绪说明进程等待的事件（如I/O完成）已经发生，进程可以重新竞争CPU。'
+            },
+            {
+                question: '哪个状态表示进程正在执行指令？',
+                options: ['就绪', '阻塞', '执行', '创建'],
+                correct: 2,
+                explanation: '执行状态表示进程已获得CPU，正在执行指令。单CPU系统中，同一时刻只有一个进程处于执行状态。'
+            }
+        ];
+
+        let currentMode = 'three';
+        let activeTransition = null;
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (mode === 'three') {
+                document.getElementById('threeStateDiagram').style.display = 'block';
+                document.getElementById('fiveStateDiagram').style.display = 'none';
+                document.getElementById('newStateCard').style.display = 'none';
+                document.getElementById('terminatedStateCard').style.display = 'none';
+            } else {
+                document.getElementById('threeStateDiagram').style.display = 'none';
+                document.getElementById('fiveStateDiagram').style.display = 'block';
+                document.getElementById('newStateCard').style.display = 'block';
+                document.getElementById('terminatedStateCard').style.display = 'block';
+            }
+
+            hideTransitionDetail();
+        }
+
+        function showTransitionDetail(transitionId, element) {
+            const data = transitionData[transitionId];
+            if (!data) return;
+
+            document.getElementById('detailTitle').textContent = data.title;
+            document.getElementById('detailDescription').textContent = data.description;
+
+            const eventsList = document.getElementById('detailEvents');
+            eventsList.innerHTML = '';
+            data.events.forEach(event => {
+                const li = document.createElement('li');
+                li.textContent = event;
+                eventsList.appendChild(li);
+            });
+
+            const detail = document.getElementById('transitionDetail');
+
+            // 计算位置
+            const svgContainer = document.querySelector('.svg-container');
+            const rect = element.getBoundingClientRect();
+            const containerRect = svgContainer.getBoundingClientRect();
+
+            detail.style.left = (rect.right - containerRect.left + 10) + 'px';
+            detail.style.top = (rect.top - containerRect.top) + 'px';
+
+            detail.classList.add('show');
+
+            if (activeTransition && activeTransition !== element) {
+                activeTransition.classList.remove('active');
+            }
+            element.classList.add('active');
+            activeTransition = element;
+        }
+
+        function hideTransitionDetail() {
+            document.getElementById('transitionDetail').classList.remove('show');
+            if (activeTransition) {
+                activeTransition.classList.remove('active');
+                activeTransition = null;
+            }
+        }
+
+        document.querySelectorAll('.transition-arrow').forEach(arrow => {
+            arrow.addEventListener('click', (e) => {
+                const transitionId = arrow.getAttribute('data-transition');
+                showTransitionDetail(transitionId, arrow);
+            });
+
+            arrow.addEventListener('mouseenter', (e) => {
+                const transitionId = arrow.getAttribute('data-transition');
+                const data = transitionData[transitionId];
+                if (data) {
+                    arrow.setAttribute('title', data.description);
+                }
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.transition-arrow') && !e.target.closest('.transition-detail')) {
+                hideTransitionDetail();
+            }
+        });
+
+        function startQuiz() {
+            const panel = document.getElementById('quizPanel');
+            panel.classList.add('show');
+
+            const randomIndex = Math.floor(Math.random() * quizQuestions.length);
+            const quiz = quizQuestions[randomIndex];
+
+            document.getElementById('quizQuestion').textContent = quiz.question;
+            document.getElementById('quizExplanation').classList.remove('show');
+
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+
+            quiz.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.addEventListener('click', () => selectOption(index, quiz.correct, quiz.explanation, optionDiv));
+                optionsContainer.appendChild(optionDiv);
+            });
+        }
+
+        function selectOption(selectedIndex, correctIndex, explanation, selectedElement) {
+            const allOptions = document.querySelectorAll('.option');
+            allOptions.forEach(opt => opt.style.pointerEvents = 'none');
+
+            if (selectedIndex === correctIndex) {
+                selectedElement.classList.add('correct');
+            } else {
+                selectedElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+            }
+
+            const explanationDiv = document.getElementById('quizExplanation');
+            explanationDiv.textContent = explanation;
+            explanationDiv.classList.add('show');
+        }
+    </script>
+</body>
+</html>

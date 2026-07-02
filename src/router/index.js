@@ -5,6 +5,7 @@ import ChapterBase from '../views/ChapterBase.vue'
 import Algorithm from '../views/Algorithm.vue'
 import Preview from '../views/Preview.vue'
 import EssentialPoints from '../views/EssentialPoints.vue'
+import InteractiveHub from '../views/InteractiveHub.vue'
 
 
 // 侧栏及目录结构：普通章节依然直接跳转，算法专题则重构为 6 个独立的顶级模块
@@ -116,6 +117,12 @@ const generateRoutes = () => {
           name: 'essentials',
           component: EssentialPoints,
           meta: { title: '必会知识点' }
+        },
+        {
+          path: 'interactive',
+          name: 'interactive',
+          component: InteractiveHub,
+          meta: { title: '交互式算法演示' }
         }
       ]
     },

@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>磁盘调度算法可视化</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+        .algorithm-section {
+            margin-bottom: 25px;
+        }
+
+        .algorithm-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .direction-selector {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .radio-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .radio-group input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .visualization-section {
+            margin-bottom: 25px;
+        }
+
+        .canvas-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        #trackCanvas {
+            width: 100%;
+            height: 200px;
+            background: white;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .results-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .results-section h3 {
+            margin-bottom: 15px;
+            color: #495057;
+            font-size: 18px;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        .result-table th,
+        .result-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .result-table th {
+            background: #e9ecef;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .total-distance {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+            text-align: right;
+        }
+
+        .info-section {
+            background: #e7f3ff;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-section h3 {
+            margin-bottom: 15px;
+            color: #495057;
+            font-size: 18px;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+        }
+
+        .info-item h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .info-item p {
+            line-height: 1.6;
+            color: #6c757d;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .preset-btn {
+            padding: 8px 16px;
+            border: 1px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .preset-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .input-row {
+                flex-direction: column;
+            }
+
+            .input-group {
+                min-width: 100%;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>磁盘调度算法可视化</h1>
+            <p>FCFS / SSTF / SCAN 算法交互式学习工具</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="totalCylinders">柱面总数</label>
+                        <input type="number" id="totalCylinders" value="500" min="1">
+                    </div>
+                    <div class="input-group">
+                        <label for="currentPosition">当前磁头位置</label>
+                        <input type="number" id="currentPosition" value="129" min="0">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="requestSequence">请求序列（逗号分隔）</label>
+                        <input type="text" id="requestSequence" value="118,24,87,256,150,6,320,218">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>加载真题</label>
+                        <div class="preset-buttons">
+                            <button class="preset-btn" onclick="loadPreset(0)">2024-2025年真题</button>
+                            <button class="preset-btn" onclick="loadPreset(1)">2023-2024年真题</button>
+                            <button class="preset-btn" onclick="loadPreset(2)">2022-2023年真题</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>SCAN方向</label>
+                        <div class="direction-selector">
+                            <label class="radio-group">
+                                <input type="radio" name="scanDirection" value="up" checked>
+                                向大柱面方向
+                            </label>
+                            <label class="radio-group">
+                                <input type="radio" name="scanDirection" value="down">
+                                向小柱面方向
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="algorithm-section">
+                <div class="algorithm-buttons">
+                    <button class="btn btn-primary" onclick="selectAlgorithm('FCFS')">FCFS 先来先服务</button>
+                    <button class="btn btn-success" onclick="selectAlgorithm('SSTF')">SSTF 最短寻道时间优先</button>
+                    <button class="btn btn-warning" onclick="selectAlgorithm('SCAN')">SCAN 电梯算法</button>
+                </div>
+            </div>
+
+            <div class="visualization-section">
+                <div class="canvas-container">
+                    <canvas id="trackCanvas" width="1100" height="200"></canvas>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-info" onclick="startSimulation()">开始模拟</button>
+                    <button class="btn btn-secondary" onclick="resetSimulation()">重置</button>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h3>模拟结果</h3>
+                <table class="result-table" id="resultTable">
+                    <thead>
+                        <tr>
+                            <th>步骤</th>
+                            <th>从柱面</th>
+                            <th>到柱面</th>
+                            <th>移动距离</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultBody">
+                    </tbody>
+                </table>
+                <div class="total-distance" id="totalDistance">
+                    总寻道距离：0
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>算法说明</h3>
+                <div class="info-item">
+                    <h4>FCFS（先来先服务）</h4>
+                    <p>按照请求到达的顺序进行服务。这是最简单的算法，但可能导致磁头频繁大幅度移动，效率较低。</p>
+                </div>
+                <div class="info-item">
+                    <h4>SSTF（最短寻道时间优先）</h4>
+                    <p>每次选择距离当前磁头位置最近的请求进行服务。虽然寻道时间较短，但可能导致某些请求长时间等待（饥饿现象）。</p>
+                </div>
+                <div class="info-item">
+                    <h4>SCAN（电梯算法）</h4>
+                    <p>磁头沿一个方向移动，服务沿途的所有请求，到达端点后反向移动。这种算法避免了饥饿现象，但需要等待磁头改变方向。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let totalCylinders = 500;
+        let currentPosition = 129;
+        let requestSequence = [];
+        let currentAlgorithm = null;
+        let simulationResults = [];
+        let isAnimating = false;
+
+        // 真题数据
+        const presets = [
+            {
+                year: '2024-2025',
+                cylinders: 500,
+                position: 129,
+                requests: [118, 24, 87, 256, 150, 6, 320, 218]
+            },
+            {
+                year: '2023-2024',
+                cylinders: 200,
+                position: 53,
+                requests: [98, 183, 37, 122, 14, 124, 65, 67]
+            },
+            {
+                year: '2022-2023',
+                cylinders: 200,
+                position: 96,
+                requests: [175, 52, 157, 36, 159, 106, 108, 72]
+            }
+        ];
+
+        // 加载真题
+        function loadPreset(index) {
+            const preset = presets[index];
+            document.getElementById('totalCylinders').value = preset.cylinders;
+            document.getElementById('currentPosition').value = preset.position;
+            document.getElementById('requestSequence').value = preset.requests.join(',');
+            resetSimulation();
+        }
+
+        // 选择算法
+        function selectAlgorithm(algorithm) {
+            currentAlgorithm = algorithm;
+            resetSimulation();
+        }
+
+        // 解析输入
+        function parseInput() {
+            totalCylinders = parseInt(document.getElementById('totalCylinders').value);
+            currentPosition = parseInt(document.getElementById('currentPosition').value);
+            const sequenceInput = document.getElementById('requestSequence').value;
+            requestSequence = sequenceInput.split(',')
+                .map(s => parseInt(s.trim()))
+                .filter(n => !isNaN(n) && n >= 0 && n < totalCylinders);
+        }
+
+        // FCFS算法
+        function fcfs(current, requests) {
+            const sequence = [current];
+            const total = [...requests];
+            let distance = 0;
+            const result = [];
+
+            for (let i = 0; i < total.length; i++) {
+                const moveDist = Math.abs(total[i] - current);
+                distance += moveDist;
+                result.push({
+                    from: current,
+                    to: total[i],
+                    distance: moveDist
+                });
+                current = total[i];
+            }
+
+            return { sequence: total, totalDistance: distance, result };
+        }
+
+        // SSTF算法
+        function sstf(current, requests) {
+            const sequence = [];
+            let remaining = [...requests];
+            let distance = 0;
+            const result = [];
+            let pos = current;
+
+            while (remaining.length > 0) {
+                let minDist = Infinity;
+                let closest = -1;
+                let idx = -1;
+
+                for (let i = 0; i < remaining.length; i++) {
+                    const dist = Math.abs(remaining[i] - pos);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closest = remaining[i];
+                        idx = i;
+                    }
+                }
+
+                const moveDist = Math.abs(closest - pos);
+                distance += moveDist;
+                result.push({
+                    from: pos,
+                    to: closest,
+                    distance: moveDist
+                });
+
+                sequence.push(closest);
+                pos = closest;
+                remaining.splice(idx, 1);
+            }
+
+            return { sequence, totalDistance: distance, result };
+        }
+
+        // SCAN算法
+        function scan(current, requests, direction) {
+            const sequence = [];
+            let remaining = [...requests];
+            let distance = 0;
+            const result = [];
+            let pos = current;
+
+            // 分离比当前位置大和小的请求
+            const larger = remaining.filter(r => r > pos).sort((a, b) => a - b);
+            const smaller = remaining.filter(r => r <= pos).sort((a, b) => b - a);
+
+            if (direction === 'up') {
+                // 先向大方向
+                for (let r of larger) {
+                    const moveDist = Math.abs(r - pos);
+                    distance += moveDist;
+                    result.push({
+                        from: pos,
+                        to: r,
+                        distance: moveDist
+                    });
+                    sequence.push(r);
+                    pos = r;
+                }
+
+                // 到达端点
+                if (larger.length > 0) {
+                    const moveDist = Math.abs(totalCylinders - 1 - pos);
+                    distance += moveDist;
+                    result.push({
+                        from: pos,
+                        to: totalCylinders - 1,
+                        distance: moveDist
+                    });
+                    pos = totalCylinders - 1;
+                }
+
+                // 反向服务小的
+                for (let r of smaller) {
+                    const moveDist = Math.abs(r - pos);
+                    distance += moveDist;
+                    result.push({
+                        from: pos,
+                        to: r,
+                        distance: moveDist
+                    });
+                    sequence.push(r);
+                    pos = r;
+                }
+            } else {
+                // 先向小方向
+                for (let r of smaller) {
+                    const moveDist = Math.abs(r - pos);
+                    distance += moveDist;
+                    result.push({
+                        from: pos,
+                        to: r,
+                        distance: moveDist
+                    });
+                    sequence.push(r);
+                    pos = r;
+                }
+
+                // 到达端点
+                if (smaller.length > 0) {
+                    const moveDist = Math.abs(0 - pos);
+                    distance += moveDist;
+                    result.push({
+                        from: pos,
+                        to: 0,
+                        distance: moveDist
+                    });
+                    pos = 0;
+                }
+
+                // 反向服务大的
+                for (let r of larger) {
+                    const moveDist = Math.abs(r - pos);
+                    distance += moveDist;
+                    result.push({
+                        from: pos,
+                        to: r,
+                        distance: moveDist
+                    });
+                    sequence.push(r);
+                    pos = r;
+                }
+            }
+
+            return { sequence, totalDistance: distance, result };
+        }
+
+        // 运行算法
+        function runAlgorithm() {
+            parseInput();
+
+            if (currentAlgorithm === 'FCFS') {
+                return fcfs(currentPosition, requestSequence);
+            } else if (currentAlgorithm === 'SSTF') {
+                return sstf(currentPosition, requestSequence);
+            } else if (currentAlgorithm === 'SCAN') {
+                const direction = document.querySelector('input[name="scanDirection"]:checked').value;
+                return scan(currentPosition, requestSequence, direction);
+            }
+
+            return null;
+        }
+
+        // 绘制Canvas
+        function drawCanvas(headPosition, visited = [], current = null) {
+            const canvas = document.getElementById('trackCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            // 清空画布
+            ctx.clearRect(0, 0, width, height);
+
+            const margin = 50;
+            const drawWidth = width - 2 * margin;
+            const centerY = height / 2;
+
+            // 绘制轨道
+            ctx.beginPath();
+            ctx.moveTo(margin, centerY);
+            ctx.lineTo(width - margin, centerY);
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 绘制刻度和请求
+            const scale = drawWidth / (totalCylinders - 1);
+
+            // 绘制所有请求位置
+            requestSequence.forEach((req, idx) => {
+                const x = margin + req * scale;
+                const isVisited = visited.includes(req);
+                const isCurrent = current === req;
+
+                ctx.beginPath();
+                ctx.arc(x, centerY, 8, 0, Math.PI * 2);
+
+                if (isCurrent) {
+                    ctx.fillStyle = '#dc3545'; // 红色 - 当前
+                } else if (isVisited) {
+                    ctx.fillStyle = '#28a745'; // 绿色 - 已访问
+                } else {
+                    ctx.fillStyle = '#6c757d'; // 灰色 - 未访问
+                }
+
+                ctx.fill();
+
+                // 绘制请求编号
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(req, x, centerY + 25);
+            });
+
+            // 绘制磁头
+            const headX = margin + headPosition * scale;
+            ctx.beginPath();
+            ctx.moveTo(headX, centerY - 20);
+            ctx.lineTo(headX - 10, centerY - 35);
+            ctx.lineTo(headX + 10, centerY - 35);
+            ctx.closePath();
+            ctx.fillStyle = '#667eea';
+            ctx.fill();
+
+            // 磁头标签
+            ctx.fillStyle = '#667eea';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('磁头', headX, centerY - 42);
+        }
+
+        // 开始模拟
+        async function startSimulation() {
+            if (isAnimating) return;
+            if (!currentAlgorithm) {
+                alert('请先选择算法');
+                return;
+            }
+
+            parseInput();
+            const result = runAlgorithm();
+
+            if (!result) return;
+
+            isAnimating = true;
+            simulationResults = result.result;
+            const sequence = result.sequence;
+
+            // 清空结果表
+            const tbody = document.getElementById('resultBody');
+            tbody.innerHTML = '';
+
+            // 初始状态
+            drawCanvas(currentPosition, [], null);
+
+            // 动画模拟
+            let visited = [];
+            let currentPos = currentPosition;
+
+            for (let i = 0; i < sequence.length; i++) {
+                const target = sequence[i];
+                const moveDist = Math.abs(target - currentPos);
+
+                // 等待一下
+                await new Promise(resolve => setTimeout(resolve, 800));
+
+                // 更新访问列表
+                visited.push(target);
+                currentPos = target;
+
+                // 重新绘制
+                drawCanvas(currentPos, visited, target);
+
+                // 添加到结果表
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = i + 1;
+                row.insertCell(1).textContent = result.result[i].from;
+                row.insertCell(2).textContent = result.result[i].to;
+                row.insertCell(3).textContent = result.result[i].distance;
+            }
+
+            // 显示总距离
+            document.getElementById('totalDistance').textContent =
+                `总寻道距离：${result.totalDistance}`;
+
+            isAnimating = false;
+        }
+
+        // 重置模拟
+        function resetSimulation() {
+            if (isAnimating) return;
+
+            parseInput();
+            drawCanvas(currentPosition, [], null);
+
+            document.getElementById('resultBody').innerHTML = '';
+            document.getElementById('totalDistance').textContent = '总寻道距离：0';
+            simulationResults = [];
+        }
+
+        // 初始化
+        window.onload = function() {
+            parseInput();
+            drawCanvas(currentPosition, [], null);
+        };
+    </script>
+</body>
+</html>

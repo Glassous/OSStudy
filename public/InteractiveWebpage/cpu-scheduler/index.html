@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU调度算法可视化</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #495057;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: flex-end;
+        }
+
+        .form-control {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .form-control label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.9em;
+        }
+
+        .form-control input,
+        .form-control select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-control input:focus,
+        .form-control select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(235, 51, 73, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .process-table input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .gantt-chart {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            overflow-x: auto;
+        }
+
+        .gantt-timeline {
+            display: flex;
+            margin-bottom: 10px;
+            font-size: 0.85em;
+            color: #6c757d;
+        }
+
+        .gantt-blocks {
+            position: relative;
+            height: 60px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .gantt-block {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9em;
+            border-right: 1px solid rgba(255,255,255,0.3);
+            position: absolute;
+            transition: opacity 0.3s;
+            opacity: 0;
+            box-sizing: border-box;
+        }
+
+        .gantt-block.visible {
+            opacity: 1;
+        }
+
+        .gantt-block .time-label {
+            position: absolute;
+            bottom: 2px;
+            font-size: 0.75em;
+            opacity: 0.9;
+        }
+
+        .stats-table {
+            margin: 20px 0;
+        }
+
+        .stats-table .highlight {
+            background: #fff3cd;
+            font-weight: 600;
+        }
+
+        .algorithm-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin-top: 15px;
+        }
+
+        .algorithm-info h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .algorithm-info p {
+            line-height: 1.6;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .time-input {
+            display: none;
+            margin-left: 10px;
+        }
+
+        .time-input.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .form-control {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CPU调度算法可视化</h1>
+            <p>交互式教学工具 - 理解操作系统调度原理</p>
+        </div>
+
+        <div class="content">
+            <!-- 进程输入区 -->
+            <div class="section">
+                <div class="section-title">进程输入</div>
+                <div class="input-group">
+                    <button class="btn btn-secondary" onclick="loadExamData('24-25')">加载24-25年真题</button>
+                    <button class="btn btn-secondary" onclick="loadExamData('23-24')">加载23-24年真题</button>
+                    <button class="btn btn-secondary" onclick="loadExamData('22-23')">加载22-23年真题</button>
+                    <button class="btn btn-danger" onclick="clearProcesses()">清空进程</button>
+                </div>
+                <div class="table-container">
+                    <table class="process-table" id="processTable">
+                        <thead>
+                            <tr>
+                                <th>进程名</th>
+                                <th>到达时间</th>
+                                <th>运行时间</th>
+                                <th>优先级</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="processTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-primary" onclick="addProcess()">添加进程</button>
+            </div>
+
+            <!-- 算法选择区 -->
+            <div class="section">
+                <div class="section-title">算法选择</div>
+                <div class="input-group">
+                    <div class="form-control">
+                        <label>选择调度算法</label>
+                        <select id="algorithmSelect" onchange="toggleTimeQuantum()">
+                            <option value="fcfs">FCFS (先来先服务)</option>
+                            <option value="sjf">SJF非抢占 (短作业优先)</option>
+                            <option value="srtf">SJF抢占 (最短剩余时间)</option>
+                            <option value="priority">优先级非抢占</option>
+                            <option value="priority_preemptive">优先级抢占</option>
+                            <option value="rr">RR (时间片轮转)</option>
+                        </select>
+                    </div>
+                    <div class="form-control time-input" id="timeQuantumGroup">
+                        <label>时间片大小</label>
+                        <input type="number" id="timeQuantum" value="2" min="1" max="10">
+                    </div>
+                    <button class="btn btn-success" onclick="runSimulation()">开始模拟</button>
+                </div>
+                <div class="algorithm-info" id="algorithmInfo">
+                    <h4>FCFS (先来先服务)</h4>
+                    <p>按进程到达时间顺序执行，先到达的进程先执行。非抢占式算法，一旦进程开始执行就会一直运行直到完成。</p>
+                </div>
+            </div>
+
+            <!-- 甘特图区 -->
+            <div class="section">
+                <div class="section-title">甘特图</div>
+                <div class="gantt-chart" id="ganttChart">
+                    <p style="text-align: center; color: #6c757d; padding: 20px;">点击"开始模拟"查看调度过程</p>
+                </div>
+                <div class="legend" id="legend" style="display: none;"></div>
+            </div>
+
+            <!-- 结果统计区 -->
+            <div class="section">
+                <div class="section-title">结果统计</div>
+                <div class="table-container">
+                    <table class="stats-table" id="statsTable">
+                        <thead>
+                            <tr>
+                                <th>进程</th>
+                                <th>到达时间</th>
+                                <th>运行时间</th>
+                                <th>开始时间</th>
+                                <th>完成时间</th>
+                                <th>周转时间</th>
+                                <th>等待时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statsTableBody">
+                        </tbody>
+                        <tfoot id="statsTableFoot">
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 进程数据存储
+        let processes = [];
+        let processColors = {};
+
+        // 真题数据
+        const examData = {
+            '24-25': [
+                { name: 'A', arrival: 0, burst: 8, priority: 1 },
+                { name: 'B', arrival: 1, burst: 4, priority: 5 },
+                { name: 'C', arrival: 2, burst: 10, priority: 3 },
+                { name: 'D', arrival: 3, burst: 2, priority: 4 },
+                { name: 'E', arrival: 4, burst: 6, priority: 2 }
+            ],
+            '23-24': [
+                { name: 'P1', arrival: 0, burst: 5, priority: 2 },
+                { name: 'P2', arrival: 1, burst: 3, priority: 1 },
+                { name: 'P3', arrival: 2, burst: 8, priority: 3 },
+                { name: 'P4', arrival: 3, burst: 6, priority: 4 }
+            ],
+            '22-23': [
+                { name: 'P1', arrival: 0, burst: 4, priority: 3 },
+                { name: 'P2', arrival: 2, burst: 3, priority: 1 },
+                { name: 'P3', arrival: 4, burst: 2, priority: 2 },
+                { name: 'P4', arrival: 6, burst: 6, priority: 4 }
+            ]
+        };
+
+        // 颜色生成
+        function generateColor(index) {
+            const colors = [
+                '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
+                '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B4D9', '#82E0AA'
+            ];
+            return colors[index % colors.length];
+        }
+
+        // 初始化
+        function init() {
+            addProcess();
+            addProcess();
+            addProcess();
+            addProcess();
+            addProcess();
+        }
+
+        // 添加进程
+        function addProcess(data = null) {
+            const tbody = document.getElementById('processTableBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" value="${data ? data.name : String.fromCharCode(65 + tbody.children.length)}" class="process-name"></td>
+                <td><input type="number" value="${data ? data.arrival : 0}" min="0" class="process-arrival"></td>
+                <td><input type="number" value="${data ? data.burst : 1}" min="1" class="process-burst"></td>
+                <td><input type="number" value="${data ? data.priority : 1}" min="1" class="process-priority"></td>
+                <td><button class="btn btn-danger" onclick="removeProcess(this)">删除</button></td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        // 删除进程
+        function removeProcess(btn) {
+            const tbody = document.getElementById('processTableBody');
+            if (tbody.children.length > 1) {
+                btn.closest('tr').remove();
+            }
+        }
+
+        // 清空进程
+        function clearProcesses() {
+            const tbody = document.getElementById('processTableBody');
+            tbody.innerHTML = '';
+            addProcess();
+        }
+
+        // 加载真题数据
+        function loadExamData(year) {
+            const data = examData[year];
+            const tbody = document.getElementById('processTableBody');
+            tbody.innerHTML = '';
+            data.forEach(p => addProcess(p));
+        }
+
+        // 切换时间片输入
+        function toggleTimeQuantum() {
+            const algorithm = document.getElementById('algorithmSelect').value;
+            const timeQuantumGroup = document.getElementById('timeQuantumGroup');
+            const algorithmInfo = document.getElementById('algorithmInfo');
+
+            if (algorithm === 'rr') {
+                timeQuantumGroup.classList.add('show');
+            } else {
+                timeQuantumGroup.classList.remove('show');
+            }
+
+            // 更新算法说明
+            const infoTexts = {
+                'fcfs': '<h4>FCFS (先来先服务)</h4><p>按进程到达时间顺序执行，先到达的进程先执行。非抢占式算法，一旦进程开始执行就会一直运行直到完成。</p>',
+                'sjf': '<h4>SJF非抢占 (短作业优先)</h4><p>从已到达的进程中选择运行时间最短的进程执行。非抢占式，进程开始执行后会一直运行到完成。</p>',
+                'srtf': '<h4>SJF抢占 (最短剩余时间优先)</h4><p>当新进程到达时，如果其剩余运行时间比当前运行进程的剩余时间更短，则抢占CPU。可最大限度减少平均等待时间。</p>',
+                'priority': '<h4>优先级非抢占</h4><p>从已到达的进程中选择优先级最高（数值最小）的进程执行。非抢占式，进程开始后会一直运行到完成。</p>',
+                'priority_preemptive': '<h4>优先级抢占</h4><p>当新进程到达时，如果其优先级比当前运行进程的优先级更高（数值更小），则抢占CPU。</p>',
+                'rr': '<h4>RR (时间片轮转)</h4><p>每个进程分配一个时间片，在该时间片内执行。时间片用完后进程被放到就绪队列末尾，CPU分配给下一个进程。适合分时系统。</p>'
+            };
+
+            algorithmInfo.innerHTML = infoTexts[algorithm];
+        }
+
+        // 获取进程数据
+        function getProcessData() {
+            const tbody = document.getElementById('processTableBody');
+            const data = [];
+            const rows = tbody.querySelectorAll('tr');
+
+            rows.forEach((row, index) => {
+                const name = row.querySelector('.process-name').value;
+                const arrival = parseInt(row.querySelector('.process-arrival').value);
+                const burst = parseInt(row.querySelector('.process-burst').value);
+                const priority = parseInt(row.querySelector('.process-priority').value);
+
+                if (name && burst > 0) {
+                    data.push({
+                        name,
+                        arrival,
+                        burst,
+                        priority,
+                        remaining: burst,
+                        color: generateColor(index)
+                    });
+                }
+            });
+
+            // 按到达时间排序
+            data.sort((a, b) => a.arrival - b.arrival);
+            return data;
+        }
+
+        // FCFS算法
+        function fcfs(processes) {
+            const schedule = [];
+            let currentTime = 0;
+            const result = processes.map(p => ({
+                ...p,
+                startTime: -1,
+                finishTime: -1
+            }));
+
+            for (const process of result) {
+                if (currentTime < process.arrival) {
+                    currentTime = process.arrival;
+                }
+                process.startTime = currentTime;
+                process.finishTime = currentTime + process.burst;
+                schedule.push({
+                    process: process.name,
+                    start: currentTime,
+                    end: process.finishTime,
+                    color: process.color
+                });
+                currentTime = process.finishTime;
+            }
+
+            return { schedule, result };
+        }
+
+        // SJF非抢占算法
+        function sjf(processes) {
+            const schedule = [];
+            let currentTime = 0;
+            const result = processes.map(p => ({
+                ...p,
+                startTime: -1,
+                finishTime: -1
+            }));
+            const completed = [];
+            const remaining = [...result];
+
+            while (remaining.length > 0) {
+                // 找到已到达且未完成的进程
+                const available = remaining.filter(p => p.arrival <= currentTime);
+                
+                if (available.length === 0) {
+                    // 没有进程到达，跳到下一个进程的到达时间
+                    currentTime = Math.min(...remaining.map(p => p.arrival));
+                    continue;
+                }
+
+                // 选择运行时间最短的进程
+                available.sort((a, b) => a.burst - b.burst);
+                const process = available[0];
+                const index = remaining.indexOf(process);
+
+                if (process.startTime === -1) {
+                    process.startTime = currentTime;
+                }
+                process.finishTime = currentTime + process.burst;
+                schedule.push({
+                    process: process.name,
+                    start: currentTime,
+                    end: process.finishTime,
+                    color: process.color
+                });
+
+                currentTime = process.finishTime;
+                completed.push(process);
+                remaining.splice(index, 1);
+            }
+
+            return { schedule, result: completed };
+        }
+
+        // SRTF抢占算法
+        function srtf(processes) {
+            const schedule = [];
+            let currentTime = 0;
+            const result = processes.map(p => ({
+                ...p,
+                startTime: -1,
+                finishTime: -1,
+                remaining: p.burst
+            }));
+            const completed = [];
+            const remaining = [...result];
+
+            while (remaining.length > 0) {
+                // 找到已到达且未完成的进程
+                const available = remaining.filter(p => p.arrival <= currentTime);
+
+                if (available.length === 0) {
+                    currentTime = Math.min(...remaining.map(p => p.arrival));
+                    continue;
+                }
+
+                // 选择剩余时间最短的进程
+                available.sort((a, b) => a.remaining - b.remaining);
+                const current = available[0];
+
+                if (current.startTime === -1) {
+                    current.startTime = currentTime;
+                }
+
+                // 找到下一个进程到达的时间点
+                const nextArrivals = remaining
+                    .filter(p => p.arrival > currentTime)
+                    .map(p => p.arrival);
+
+                let nextTime;
+                if (nextArrivals.length > 0) {
+                    nextTime = Math.min(...nextArrivals);
+                } else {
+                    nextTime = currentTime + current.remaining;
+                }
+
+                const executeTime = Math.min(nextTime - currentTime, current.remaining);
+                schedule.push({
+                    process: current.name,
+                    start: currentTime,
+                    end: currentTime + executeTime,
+                    color: current.color
+                });
+
+                currentTime += executeTime;
+                current.remaining -= executeTime;
+
+                if (current.remaining === 0) {
+                    current.finishTime = currentTime;
+                    completed.push(current);
+                    const index = remaining.indexOf(current);
+                    remaining.splice(index, 1);
+                }
+            }
+
+            return { schedule, result: completed };
+        }
+
+        // 优先级非抢占算法
+        function priorityNonPreemptive(processes) {
+            const schedule = [];
+            let currentTime = 0;
+            const result = processes.map(p => ({
+                ...p,
+                startTime: -1,
+                finishTime: -1
+            }));
+            const completed = [];
+            const remaining = [...result];
+
+            while (remaining.length > 0) {
+                const available = remaining.filter(p => p.arrival <= currentTime);
+                
+                if (available.length === 0) {
+                    currentTime = Math.min(...remaining.map(p => p.arrival));
+                    continue;
+                }
+
+                // 选择优先级最高的进程（数值越小优先级越高）
+                available.sort((a, b) => a.priority - b.priority);
+                const process = available[0];
+                const index = remaining.indexOf(process);
+
+                if (process.startTime === -1) {
+                    process.startTime = currentTime;
+                }
+                process.finishTime = currentTime + process.burst;
+                schedule.push({
+                    process: process.name,
+                    start: currentTime,
+                    end: process.finishTime,
+                    color: process.color
+                });
+
+                currentTime = process.finishTime;
+                completed.push(process);
+                remaining.splice(index, 1);
+            }
+
+            return { schedule, result: completed };
+        }
+
+        // 优先级抢占算法
+        function priorityPreemptive(processes) {
+            const schedule = [];
+            let currentTime = 0;
+            const result = processes.map(p => ({
+                ...p,
+                startTime: -1,
+                finishTime: -1,
+                remaining: p.burst
+            }));
+            const completed = [];
+            const remaining = [...result];
+
+            while (remaining.length > 0) {
+                const available = remaining.filter(p => p.arrival <= currentTime);
+
+                if (available.length === 0) {
+                    currentTime = Math.min(...remaining.map(p => p.arrival));
+                    continue;
+                }
+
+                // 选择优先级最高的进程
+                available.sort((a, b) => a.priority - b.priority);
+                const current = available[0];
+
+                if (current.startTime === -1) {
+                    current.startTime = currentTime;
+                }
+
+                // 找到下一个进程到达的时间点
+                const nextArrivals = remaining
+                    .filter(p => p.arrival > currentTime)
+                    .map(p => p.arrival);
+
+                let nextTime;
+                if (nextArrivals.length > 0) {
+                    nextTime = Math.min(...nextArrivals);
+                } else {
+                    nextTime = currentTime + current.remaining;
+                }
+
+                const executeTime = Math.min(nextTime - currentTime, current.remaining);
+                schedule.push({
+                    process: current.name,
+                    start: currentTime,
+                    end: currentTime + executeTime,
+                    color: current.color
+                });
+
+                currentTime += executeTime;
+                current.remaining -= executeTime;
+
+                if (current.remaining === 0) {
+                    current.finishTime = currentTime;
+                    completed.push(current);
+                    const index = remaining.indexOf(current);
+                    remaining.splice(index, 1);
+                }
+            }
+
+            return { schedule, result: completed };
+        }
+
+        // RR时间片轮转算法
+        function rr(processes, timeQuantum) {
+            const schedule = [];
+            let currentTime = 0;
+            const result = processes.map(p => ({
+                ...p,
+                startTime: -1,
+                finishTime: -1,
+                remaining: p.burst
+            }));
+            const completed = [];
+            const queue = [];
+
+            // 初始化队列
+            const sortedArrivals = [...result].sort((a, b) => a.arrival - b.arrival);
+            let arrivalIndex = 0;
+            currentTime = sortedArrivals[0].arrival;
+            queue.push(sortedArrivals[0]);
+            arrivalIndex++;
+
+            while (queue.length > 0) {
+                const current = queue.shift();
+
+                if (current.startTime === -1) {
+                    current.startTime = currentTime;
+                }
+
+                const executeTime = Math.min(timeQuantum, current.remaining);
+                schedule.push({
+                    process: current.name,
+                    start: currentTime,
+                    end: currentTime + executeTime,
+                    color: current.color
+                });
+
+                currentTime += executeTime;
+                current.remaining -= executeTime;
+
+                // 添加在此期间到达的进程
+                while (arrivalIndex < sortedArrivals.length && 
+                       sortedArrivals[arrivalIndex].arrival <= currentTime) {
+                    queue.push(sortedArrivals[arrivalIndex]);
+                    arrivalIndex++;
+                }
+
+                if (current.remaining === 0) {
+                    current.finishTime = currentTime;
+                    completed.push(current);
+                } else {
+                    queue.push(current);
+                }
+
+                // 如果队列为空但还有进程未到达
+                if (queue.length === 0 && arrivalIndex < sortedArrivals.length) {
+                    currentTime = sortedArrivals[arrivalIndex].arrival;
+                    queue.push(sortedArrivals[arrivalIndex]);
+                    arrivalIndex++;
+                }
+            }
+
+            return { schedule, result: completed };
+        }
+
+        // 运行模拟
+        function runSimulation() {
+            const processes = getProcessData();
+            if (processes.length === 0) {
+                return;
+            }
+
+            const algorithm = document.getElementById('algorithmSelect').value;
+            let result;
+
+            switch (algorithm) {
+                case 'fcfs':
+                    result = fcfs(processes);
+                    break;
+                case 'sjf':
+                    result = sjf(processes);
+                    break;
+                case 'srtf':
+                    result = srtf(processes);
+                    break;
+                case 'priority':
+                    result = priorityNonPreemptive(processes);
+                    break;
+                case 'priority_preemptive':
+                    result = priorityPreemptive(processes);
+                    break;
+                case 'rr':
+                    const timeQuantum = parseInt(document.getElementById('timeQuantum').value);
+                    result = rr(processes, timeQuantum);
+                    break;
+            }
+
+            displayGanttChart(result.schedule, processes);
+            displayStats(result.result);
+        }
+
+        // 显示甘特图
+        function displayGanttChart(schedule, processes) {
+            const container = document.getElementById('ganttChart');
+            const legend = document.getElementById('legend');
+
+            if (schedule.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 20px;">没有调度结果</p>';
+                legend.style.display = 'none';
+                return;
+            }
+
+            const totalTime = schedule[schedule.length - 1].end;
+            const unitWidth = Math.max(30, 600 / totalTime);
+
+            // 生成时间轴
+            let timelineHTML = '<div class="gantt-timeline">';
+            for (let i = 0; i <= totalTime; i++) {
+                timelineHTML += `<span style="width: ${unitWidth}px; text-align: center;">${i}</span>`;
+            }
+            timelineHTML += '</div>';
+
+            // 生成甘特图块
+            let blocksHTML = '<div class="gantt-blocks">';
+            schedule.forEach((item, index) => {
+                const width = (item.end - item.start) * unitWidth;
+                blocksHTML += `<div class="gantt-block" style="left: ${item.start * unitWidth}px; width: ${width}px; background: ${item.color};">
+                    ${item.process}
+                    <span class="time-label">${item.start}-${item.end}</span>
+                </div>`;
+            });
+            blocksHTML += '</div>';
+
+            container.innerHTML = timelineHTML + blocksHTML;
+
+            // 动画显示
+            const blocks = container.querySelectorAll('.gantt-block');
+            blocks.forEach((block, index) => {
+                setTimeout(() => {
+                    block.classList.add('visible');
+                }, index * 300);
+            });
+
+            // 显示图例
+            legend.style.display = 'flex';
+            legend.innerHTML = '<strong>进程图例：</strong>';
+            const processMap = new Map();
+            schedule.forEach(item => {
+                if (!processMap.has(item.process)) {
+                    processMap.set(item.process, item.color);
+                }
+            });
+            processMap.forEach((color, name) => {
+                legend.innerHTML += `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: ${color};"></div>
+                        <span>${name}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // 显示统计结果
+        function displayStats(result) {
+            const tbody = document.getElementById('statsTableBody');
+            const tfoot = document.getElementById('statsTableFoot');
+
+            let totalTurnaround = 0;
+            let totalWaiting = 0;
+
+            tbody.innerHTML = result.map(p => {
+                const turnaround = p.finishTime - p.arrival;
+                const waiting = turnaround - p.burst;
+                totalTurnaround += turnaround;
+                totalWaiting += waiting;
+
+                return `
+                    <tr>
+                        <td><span style="color: ${p.color}; font-weight: 600;">${p.name}</span></td>
+                        <td>${p.arrival}</td>
+                        <td>${p.burst}</td>
+                        <td>${p.startTime}</td>
+                        <td>${p.finishTime}</td>
+                        <td>${turnaround}</td>
+                        <td>${waiting}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const avgTurnaround = (totalTurnaround / result.length).toFixed(2);
+            const avgWaiting = (totalWaiting / result.length).toFixed(2);
+
+            tfoot.innerHTML = `
+                <tr class="highlight">
+                    <td colspan="5">平均值</td>
+                    <td>${avgTurnaround}</td>
+                    <td>${avgWaiting}</td>
+                </tr>
+            `;
+        }
+
+        // 页面加载时初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

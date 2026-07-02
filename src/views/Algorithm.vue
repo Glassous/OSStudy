@@ -621,6 +621,33 @@
 
       </section>
 
+      <!-- Part 2.5: Interactive Webpage Module -->
+      <section v-if="hasInteractivePage" :key="'interactive-' + route.path" class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+        <!-- Attribution Header -->
+        <div class="flex items-center gap-3 px-6 py-3.5 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200">
+          <span class="text-xs font-bold text-indigo-700">🎮 交互式模拟演示</span>
+          <div class="flex items-center gap-2 ml-auto">
+            <img 
+              src="https://file.glassous.top/OSStudy/images/imicola.png" 
+              alt="imicola avatar"
+              class="w-6 h-6 rounded-full object-cover ring-1 ring-indigo-200 shadow-sm flex-shrink-0"
+              @error="e => e.target.style.display='none'"
+            />
+            <span class="text-[11px] text-slate-500">由 <span class="font-bold text-indigo-600">imicola</span> 大佬制作</span>
+          </div>
+        </div>
+        <!-- iframe Embed -->
+        <div class="w-full" style="height: 680px;">
+          <iframe 
+            :src="interactivePageUrl"
+            class="w-full h-full border-0"
+            allow="fullscreen"
+            loading="lazy"
+            title="交互式算法演示"
+          ></iframe>
+        </div>
+      </section>
+
       <!-- Part 3: Reference Videos -->
       <section v-if="activeType === 'banker' || activeType === 'page'" :key="route.path" class="bg-white p-6 border border-slate-200 rounded-lg">
         <h2 class="text-lg font-extrabold text-slate-900 mb-4 border-l-4 border-indigo-600 pl-3">
@@ -696,6 +723,20 @@ const activeType = computed(() => {
   if (parentPath.value.includes('file')) return 'file'
   return ''
 })
+
+// 交互式网页模块：根据算法类型映射对应的网页路径
+const interactivePageUrl = computed(() => {
+  const map = {
+    cpu: '/InteractiveWebpage/cpu-scheduler/index.html',
+    banker: '/InteractiveWebpage/banker/index.html',
+    page: '/InteractiveWebpage/page-replacement/index.html',
+    disk: '/InteractiveWebpage/disk-scheduler/index.html',
+    pv: '/InteractiveWebpage/process-states/index.html',
+  }
+  return map[activeType.value] || ''
+})
+
+const hasInteractivePage = computed(() => !!interactivePageUrl.value)
 
 // 计算当前运行算法的总步数
 const totalSteps = computed(() => {
