@@ -621,6 +621,33 @@
 
       </section>
 
+      <!-- Part 3: Reference Videos -->
+      <section v-if="activeType === 'banker' || activeType === 'page'" :key="route.path" class="bg-white p-6 border border-slate-200 rounded-lg">
+        <h2 class="text-lg font-extrabold text-slate-900 mb-4 border-l-4 border-indigo-600 pl-3">
+          🎬 推荐参考视频
+        </h2>
+        <div class="w-full aspect-video rounded-lg overflow-hidden shadow-sm border border-slate-100">
+          <iframe v-if="activeType === 'banker'" 
+            src="//player.bilibili.com/player.html?isOutside=true&aid=115784399461757&bvid=BV1vnBaBkEPm&cid=34988557754&p=1&autoplay=0" 
+            class="w-full h-full" 
+            scrolling="no" 
+            border="0" 
+            frameborder="no" 
+            framespacing="0" 
+            allowfullscreen="true">
+          </iframe>
+          <iframe v-else-if="activeType === 'page'" 
+            src="//player.bilibili.com/player.html?isOutside=true&aid=116765279393369&bvid=BV1a9LR6UEDn&cid=39191118056&p=1&autoplay=0" 
+            class="w-full h-full" 
+            scrolling="no" 
+            border="0" 
+            frameborder="no" 
+            framespacing="0" 
+            allowfullscreen="true">
+          </iframe>
+        </div>
+      </section>
+
     </div>
   </div>
 </template>
