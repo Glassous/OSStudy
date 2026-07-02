@@ -129,7 +129,7 @@
       </aside>
 
       <!-- Main Layout Content Area -->
-      <main class="flex-1 md:pl-72 min-h-screen flex flex-col bg-slate-50/30">
+      <main class="flex-1 md:pl-72 min-h-screen flex flex-col bg-slate-50/30 min-w-0">
         <div class="flex-1 py-6">
           <router-view />
         </div>

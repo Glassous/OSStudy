@@ -100,12 +100,7 @@
             </div>
             
             <!-- Answer Area (With Code Blocks and Formula Blocks) -->
-            <div class="pl-12 border-t border-slate-100 pt-4 mt-3">
-              <div class="flex gap-2 mb-2">
-                <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-green-50 text-green-700 border border-green-100 rounded">
-                  参考答案
-                </span>
-              </div>
+            <div class="border-t border-slate-100 pt-4 mt-3">
               <!-- Code and formulas rendered as clean custom styled blocks -->
               <div 
                 class="text-slate-650 text-base md:text-lg leading-relaxed" 
@@ -114,7 +109,7 @@
             </div>
 
             <!-- Embedded Deep AI Analysis (Collapsible Accordion inside the card) -->
-            <div class="pl-12 mt-4 pt-3 border-t border-dashed border-slate-100">
+            <div class="mt-4 pt-3 border-t border-dashed border-slate-100">
               <button 
                 @click="toggleSolution(idx)"
                 class="flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-850 transition-colors cursor-pointer"

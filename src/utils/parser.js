@@ -207,7 +207,7 @@ export function formatContentToHtml(text) {
   return blocks.map(b => {
     if (b.type === 'code') {
       const indented = indentCode(b.content)
-      return `<pre class="bg-slate-900 text-slate-100 p-4 my-4 rounded-lg font-mono text-sm overflow-x-auto border border-slate-800 leading-relaxed shadow-sm">${escapeHtml(indented)}</pre>`
+      return `<pre class="bg-slate-900 text-slate-100 p-4 my-4 rounded-lg font-mono text-sm overflow-x-auto border border-slate-800 leading-relaxed shadow-sm w-full max-w-full">${highlightCode(indented)}</pre>`
     } else {
       // 解析普通文本行，以行为单位检测列表、缩进和加粗
       const textLines = b.content.split('\n')
@@ -287,3 +287,41 @@ function escapeHtml(text) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;')
 }
+
+function highlightCode(codeText) {
+  let escaped = escapeHtml(codeText)
+  
+  const placeholders = []
+  
+  // 1. Comments: // ...
+  escaped = escaped.replace(/(\/\/.*)/g, (match) => {
+    const id = `___COMMENT_PLACEHOLDER_${placeholders.length}___`
+    placeholders.push(`<span class="text-slate-500 italic">${match}</span>`)
+    return id
+  })
+  
+  // 2. Numbers (Process first before any class names like text-sky-400 are introduced)
+  escaped = escaped.replace(/\b(\d+)\b/g, '<span class="text-teal-300">$1</span>')
+  
+  // 3. Keywords (C/C++ and pseudo-code syntax)
+  const keywords = [
+    'semaphore', 'int', 'void', 'struct', 'double', 'float', 'char', 
+    'condition', 'Monitor', 'while', 'if', 'for', 'else', 'return', 
+    'true', 'false', 'break', 'continue', 'cobegin', 'coend'
+  ]
+  const keywordRegex = new RegExp(`\\b(${keywords.join('|')})\\b`, 'g')
+  escaped = escaped.replace(keywordRegex, '<span class="text-sky-400 font-semibold">$1</span>')
+  
+  // 4. PV operations & common procedures
+  const funcs = ['wait', 'signal', 'P', 'V']
+  const funcRegex = new RegExp(`\\b(${funcs.join('|')})\\b(?=\\s*\\()`, 'g')
+  escaped = escaped.replace(funcRegex, '<span class="text-amber-400 font-bold">$1</span>')
+  
+  // 5. Restore comments
+  for (let i = 0; i < placeholders.length; i++) {
+    escaped = escaped.replace(`___COMMENT_PLACEHOLDER_${i}___`, placeholders[i])
+  }
+  
+  return escaped
+}
+
