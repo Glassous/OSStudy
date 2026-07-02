@@ -12,7 +12,7 @@
       <h1 class="text-4xl font-extrabold text-slate-950 tracking-tight flex items-center gap-3">
         <span class="text-indigo-600">🎯</span> 核心必会知识点复习
       </h1>
-      <p class="text-base text-slate-400 mt-2">精选期末与考研高频考点，涵盖简答、应用及算法设计题</p>
+      <p class="text-base text-slate-400 mt-2">精选期末高频核心考点，涵盖简答、应用及算法设计题</p>
     </header>
 
     <!-- Navigation Tabs -->
@@ -69,7 +69,7 @@
       <!-- 2. 应用题板块 -->
       <div v-else-if="activeTab === 'app'" v-math class="space-y-8 animate-fade-in">
         <div class="bg-indigo-50/50 border border-indigo-100 p-5 rounded-lg text-slate-700 text-base md:text-lg leading-relaxed">
-          💡 <strong>应用题复习指南：</strong> 以下梳理了本项目涉及的所有核心计算与推导算法。带 <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800">★ 重点</span> 标记的为大纲及考研最核心考点，需熟练掌握其计算细节。
+          💡 <strong>应用题复习指南：</strong> 以下梳理了本项目涉及的所有核心计算与推导算法。带 <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800">★ 重点</span> 标记的为期末考试最常考的考点，需熟练掌握其计算细节。
         </div>
 
         <div class="grid grid-cols-1 gap-6">
@@ -108,6 +108,170 @@
                   <li><strong>安全性条件：</strong> 寻找安全序列。当发现存在一个进程满足 $\text{Need}_i \le \text{Available}$，则假设该进程可顺利执行完毕，并回收其资源 $\text{Available} = \text{Available} + \text{Allocation}_i$。</li>
                   <li><strong>试分配规则：</strong> 进程提出 Request 后，先检查 $\text{Request}_i \le \text{Need}_i$ 且 $\text{Request}_i \le \text{Available}$。试分配后运行“安全性检查原语”，安全则分配，否则拒绝并令其等待。</li>
                 </ul>
+              </div>
+
+              <hr class="my-6 border-t border-slate-200" />
+
+              <div class="space-y-4">
+                <h4 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                  <span>💡 期末典型例题：</span>
+                </h4>
+                <p class="text-slate-655 text-sm md:text-base leading-relaxed">假设系统中有 5 个进程 $P_1, P_2, P_3, P_4, P_5$，有 3 种资源类型 A, B, C。当前系统中的资源分配状态如下表所示：</p>
+                
+                <!-- Banker's Table -->
+                <div class="overflow-x-auto my-4">
+                  <table class="min-w-full text-center border-collapse border border-slate-200 text-sm">
+                    <thead>
+                      <tr class="bg-slate-50 font-semibold text-slate-700">
+                        <th class="border border-slate-200 px-4 py-2" rowspan="2">进程</th>
+                        <th class="border border-slate-200 px-4 py-2" colspan="3">Max</th>
+                        <th class="border border-slate-200 px-4 py-2" colspan="3">Allocation</th>
+                        <th class="border border-slate-200 px-4 py-2" colspan="3">Available</th>
+                      </tr>
+                      <tr class="bg-slate-50 font-semibold text-slate-700">
+                        <th class="border border-slate-200 px-2 py-1">A</th>
+                        <th class="border border-slate-200 px-2 py-1">B</th>
+                        <th class="border border-slate-200 px-2 py-1">C</th>
+                        <th class="border border-slate-200 px-2 py-1">A</th>
+                        <th class="border border-slate-200 px-2 py-1">B</th>
+                        <th class="border border-slate-200 px-2 py-1">C</th>
+                        <th class="border border-slate-200 px-2 py-1">A</th>
+                        <th class="border border-slate-200 px-2 py-1">B</th>
+                        <th class="border border-slate-200 px-2 py-1">C</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="border border-slate-200 px-2 py-2 font-medium">$P_1$</td>
+                        <td class="border border-slate-200 px-2 py-2">8</td>
+                        <td class="border border-slate-200 px-2 py-2">6</td>
+                        <td class="border border-slate-200 px-2 py-2">4</td>
+                        <td class="border border-slate-200 px-2 py-2">1</td>
+                        <td class="border border-slate-200 px-2 py-2">2</td>
+                        <td class="border border-slate-200 px-2 py-2">1</td>
+                        <td class="border border-slate-200 px-2 py-2 bg-slate-50/30">2</td>
+                        <td class="border border-slate-200 px-2 py-2 bg-slate-50/30">1</td>
+                        <td class="border border-slate-200 px-2 py-2 bg-slate-50/30">1</td>
+                      </tr>
+                      <tr>
+                        <td class="border border-slate-200 px-2 py-2 font-medium">$P_2$</td>
+                        <td class="border border-slate-200 px-2 py-2">4</td>
+                        <td class="border border-slate-200 px-2 py-2">3</td>
+                        <td class="border border-slate-200 px-2 py-2">3</td>
+                        <td class="border border-slate-200 px-2 py-2">3</td>
+                        <td class="border border-slate-200 px-2 py-2">1</td>
+                        <td class="border border-slate-200 px-2 py-2">1</td>
+                        <td class="border border-slate-200 px-2 py-2"></td>
+                        <td class="border border-slate-200 px-2 py-2"></td>
+                        <td class="border border-slate-200 px-2 py-2"></td>
+                      </tr>
+                      <tr>
+                        <td class="border border-slate-200 px-2 py-2 font-medium">$P_3$</td>
+                        <td class="border border-slate-200 px-2 py-2">10</td>
+                        <td class="border border-slate-200 px-2 py-2">1</td>
+                        <td class="border border-slate-200 px-2 py-2">3</td>
+                        <td class="border border-slate-200 px-2 py-2">4</td>
+                        <td class="border border-slate-200 px-2 py-2">1</td>
+                        <td class="border border-slate-200 px-2 py-2">3</td>
+                        <td class="border border-slate-200 px-2 py-2"></td>
+                        <td class="border border-slate-200 px-2 py-2"></td>
+                        <td class="border border-slate-200 px-2 py-2"></td>
+                      </tr>
+                      <tr>
+                        <td class="border border-slate-200 px-2 py-2 font-medium">$P_4$</td>
+                        <td class="border border-slate-200 px-2 py-2">3</td>
+                        <td class="border border-slate-200 px-2 py-2">3</td>
+                        <td class="border border-slate-200 px-2 py-2">3</td>
+                        <td class="border border-slate-200 px-2 py-2">3</td>
+                        <td class="border border-slate-200 px-2 py-2">2</td>
+                        <td class="border border-slate-200 px-2 py-2">2</td>
+                        <td class="border border-slate-200 px-2 py-2"></td>
+                        <td class="border border-slate-200 px-2 py-2"></td>
+                        <td class="border border-slate-200 px-2 py-2"></td>
+                      </tr>
+                      <tr>
+                        <td class="border border-slate-200 px-2 py-2 font-medium">$P_5$</td>
+                        <td class="border border-slate-200 px-2 py-2">5</td>
+                        <td class="border border-slate-200 px-2 py-2">4</td>
+                        <td class="border border-slate-200 px-2 py-2">6</td>
+                        <td class="border border-slate-200 px-2 py-2">1</td>
+                        <td class="border border-slate-200 px-2 py-2">1</td>
+                        <td class="border border-slate-200 px-2 py-2">3</td>
+                        <td class="border border-slate-200 px-2 py-2"></td>
+                        <td class="border border-slate-200 px-2 py-2"></td>
+                        <td class="border border-slate-200 px-2 py-2"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="space-y-6 mt-4">
+                  <div class="bg-slate-50 p-4 border border-slate-200 rounded-lg space-y-2">
+                    <p class="font-bold text-slate-900 text-base">（1）请给出当前的资源需求矩阵 Need：</p>
+                    <p class="text-slate-655 text-sm md:text-base leading-relaxed pl-2">根据公式 $\text{Need} = \text{Max} - \text{Allocation}$ 计算，得需求矩阵 Need 如下：</p>
+                    <ul class="list-disc list-inside pl-4 space-y-1 text-slate-600 text-sm md:text-base leading-relaxed">
+                      <li>$P_1$: $\text{Need}_1 = (8-1, 6-2, 4-1) = (7, 4, 3)$</li>
+                      <li>$P_2$: $\text{Need}_2 = (4-3, 3-1, 3-1) = (1, 2, 2)$</li>
+                      <li>$P_3$: $\text{Need}_3 = (10-4, 1-1, 3-3) = (6, 0, 0)$</li>
+                      <li>$P_4$: $\text{Need}_4 = (3-3, 3-2, 3-2) = (0, 1, 1)$</li>
+                      <li>$P_5$: $\text{Need}_5 = (5-1, 4-1, 6-3) = (4, 3, 3)$</li>
+                    </ul>
+                  </div>
+
+                  <div class="bg-slate-50 p-4 border border-slate-200 rounded-lg space-y-2">
+                    <p class="font-bold text-slate-900 text-base">（2）请判断当前系统是否处于安全状态？为什么？</p>
+                    <p class="text-slate-655 text-sm md:text-base leading-relaxed pl-2"><strong>结论：</strong> 当前系统处于<strong>安全状态</strong>。</p>
+                    <p class="text-slate-655 text-sm md:text-base leading-relaxed pl-2"><strong>分析步骤（安全性检查）：</strong> 初始时，可利用资源向量 $\text{Available} = (2, 1, 1)$：</p>
+                    <ol class="list-decimal list-inside pl-4 space-y-2 text-slate-600 text-sm md:text-base leading-relaxed">
+                      <li>
+                        首先检查 <strong>$P_4$</strong>：其 $\text{Need}_4(0, 1, 1) \le \text{Available}(2, 1, 1)$，资源满足。分配资源并执行完毕后，回收资源：<br />
+                        $\text{Available} = (2, 1, 1) + \text{Allocation}_4(3, 2, 2) = (5, 3, 3)$。
+                      </li>
+                      <li>
+                        接着检查 <strong>$P_2$</strong>：其 $\text{Need}_2(1, 2, 2) \le \text{Available}(5, 3, 3)$，分配并执行完毕后回收资源：<br />
+                        $\text{Available} = (5, 3, 3) + \text{Allocation}_2(3, 1, 1) = (8, 4, 4)$。
+                      </li>
+                      <li>
+                        接着检查 <strong>$P_5$</strong>：其 $\text{Need}_5(4, 3, 3) \le \text{Available}(8, 4, 4)$，分配并执行完毕后回收资源：<br />
+                        $\text{Available} = (8, 4, 4) + \text{Allocation}_5(1, 1, 3) = (9, 5, 7)$。
+                      </li>
+                      <li>
+                        接着检查 <strong>$P_1$</strong>：其 $\text{Need}_1(7, 4, 3) \le \text{Available}(9, 5, 7)$，分配并执行完毕后回收资源：<br />
+                        $\text{Available} = (9, 5, 7) + \text{Allocation}_1(1, 2, 1) = (10, 7, 8)$。
+                      </li>
+                      <li>
+                        最后检查 <strong>$P_3$</strong>：其 $\text{Need}_3(6, 0, 0) \le \text{Available}(10, 7, 8)$，分配并执行完毕后回收资源：<br />
+                        $\text{Available} = (10, 7, 8) + \text{Allocation}_3(4, 1, 3) = (14, 8, 11)$。
+                      </li>
+                    </ol>
+                    <p class="text-slate-655 text-sm md:text-base leading-relaxed pl-2 mt-2">系统存在一个安全序列 <strong>$P_4 \rightarrow P_2 \rightarrow P_5 \rightarrow P_1 \rightarrow P_3$</strong>，因此系统处于安全状态。</p>
+                  </div>
+
+                  <div class="bg-slate-50 p-4 border border-slate-200 rounded-lg space-y-2">
+                    <p class="font-bold text-slate-900 text-base">（3）当前，如果进程 $P_5$ 提出资源请求 $(1, 1, 1)$，系统能否立即满足该请求？为什么？</p>
+                    <p class="text-slate-655 text-sm md:text-base leading-relaxed pl-2"><strong>结论：</strong> 系统<strong>不能</strong>立即满足该请求，进程 $P_5$ 必须等待。</p>
+                    <p class="text-slate-655 text-sm md:text-base leading-relaxed pl-2"><strong>分析步骤：</strong></p>
+                    <ol class="list-decimal list-inside pl-4 space-y-1 text-slate-600 text-sm md:text-base leading-relaxed">
+                      <li><strong>请求检查：</strong> $\text{Request}_5(1, 1, 1) \le \text{Need}_5(4, 3, 3)$ 且 $\text{Request}_5(1, 1, 1) \le \text{Available}(2, 1, 1)$。符合申请规范。</li>
+                      <li>
+                        <strong>试分配：</strong> 假设系统试分配资源，临时修改向量：
+                        <ul class="list-disc list-inside pl-6 mt-1 space-y-1">
+                          <li>$\text{Available} = (2, 1, 1) - (1, 1, 1) = (1, 0, 0)$</li>
+                          <li>$\text{Allocation}_5 = (1, 1, 3) + (1, 1, 1) = (2, 2, 4)$</li>
+                          <li>$\text{Need}_5 = (4, 3, 3) - (1, 1, 1) = (3, 2, 2)$</li>
+                        </ul>
+                      </li>
+                      <li>
+                        <strong>安全性分析：</strong> 此时剩余可利用资源 $\text{Available} = (1, 0, 0)$。
+                        <ul class="list-disc list-inside pl-6 mt-1 space-y-1 text-rose-600 font-semibold">
+                          <li>比较发现，当前所有就绪进程的 Need 均大于 $\text{Available}(1, 0, 0)$（即无法找出任何进程满足 $\text{Need}_i \le \text{Available}$）。</li>
+                          <li>系统无法找到一条安全序列，进入了<strong>不安全状态</strong>。</li>
+                        </ul>
+                      </li>
+                    </ol>
+                    <p class="text-slate-655 text-sm md:text-base leading-relaxed pl-2 mt-2">为了避免系统发生死锁，当试分配导致系统进入不安全状态时，必须拒绝该请求，所以系统不能立即满足，进程 $P_5$ 应当等待。</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
