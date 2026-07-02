@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import MainLayout from '../layout/MainLayout.vue'
 import Home from '../views/Home.vue'
 import ChapterBase from '../views/ChapterBase.vue'
@@ -160,7 +160,7 @@ const generateRoutes = () => {
 }
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: generateRoutes(),
   scrollBehavior() {
     return { top: 0 }

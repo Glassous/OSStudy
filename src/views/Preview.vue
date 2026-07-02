@@ -70,13 +70,11 @@ const fetchMarkdown = async () => {
     }
     const rawText = await res.text()
     
-    // 配置 marked 选项
-    marked.setOptions({
+    // 配置 marked 选项并解析
+    renderedHtml.value = marked.parse(rawText, {
       gfm: true,
       breaks: true
     })
-    
-    renderedHtml.value = marked(rawText)
   } catch (err) {
     error.value = `获取文档内容失败: ${err.message}`
   } finally {

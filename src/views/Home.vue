@@ -189,7 +189,7 @@ const getDownloadUrl = (fileName) => {
 const previewFile = (res) => {
   const url = getDownloadUrl(res.name)
   if (res.type === 'md') {
-    window.open(`/preview?file=${encodeURIComponent(res.name)}`, '_blank')
+    window.open(`/#/preview?file=${encodeURIComponent(res.name)}`, '_blank')
   } else {
     window.open(url, '_blank')
   }
@@ -201,7 +201,13 @@ const downloadFile = async (res) => {
   try {
     const response = await fetch(url)
     if (!response.ok) throw new Error('网络请求异常')
-    const blob = await response.blob()
+    let blob = await response.blob()
+    
+    // 如果是 markdown 文件，强制转换为 application/octet-stream MIME 类型以确保浏览器弹出下载窗口而非直接预览
+    if (res.type === 'md') {
+      blob = new Blob([blob], { type: 'application/octet-stream' })
+    }
+    
     const blobUrl = URL.createObjectURL(blob)
     
     const a = document.createElement('a')
