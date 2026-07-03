@@ -1,12 +1,5 @@
 <template>
-  <div class="py-10 w-full px-6 md:px-12 max-w-none">
-    <!-- Breadcrumbs -->
-    <nav class="flex items-center space-x-2 text-sm text-slate-500 mb-6">
-      <router-link to="/" class="hover:text-indigo-600 transition-colors">首页</router-link>
-      <span class="text-slate-300">/</span>
-      <span class="text-slate-900 font-bold">交互式算法演示</span>
-    </nav>
-
+    <div class="pt-2 pb-10 w-full px-6 md:px-12 max-w-none">
     <!-- Header -->
     <header class="border-b border-slate-200 pb-6 mb-8">
       <div class="flex items-center gap-3">

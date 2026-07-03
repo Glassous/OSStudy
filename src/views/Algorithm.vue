@@ -1,14 +1,5 @@
 <template>
-  <div class="py-10 w-full px-6 md:px-12 max-w-none">
-    <!-- Breadcrumbs -->
-    <nav class="flex items-center space-x-2 text-sm text-slate-500 mb-6">
-      <router-link to="/" class="hover:text-indigo-600 transition-colors">首页</router-link>
-      <span class="text-slate-300">/</span>
-      <span class="text-slate-655">{{ parentTitle }}</span>
-      <span class="text-slate-300">/</span>
-      <span class="text-slate-900 font-bold">{{ routeMetaTitle }}</span>
-    </nav>
-
+    <div class="pt-2 pb-10 w-full px-6 md:px-12 max-w-none">
     <!-- Header Section -->
     <header class="border-b border-slate-200 pb-6 mb-8">
       <h1 class="text-4xl font-extrabold text-slate-950 tracking-tight flex items-center gap-3">
