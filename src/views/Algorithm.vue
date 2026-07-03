@@ -127,7 +127,7 @@
 
           <!-- PV Operations Theory -->
           <div v-else-if="activeType === 'pv'" class="space-y-4">
-            <p>PV操作利用记录型信号量实现进程间的同步与互斥。<code>P(S)</code> 消耗资源，<code>V(S)</code> 释放并唤醒。</p>
+            <p>信号量利用 <code>wait(S)</code>（即 P 操作）和 <code>signal(S)</code>（即 V 操作）两个原子操作实现进程间的同步与互斥。<code>wait(S)</code> 消耗资源，<code>signal(S)</code> 释放并唤醒。</p>
             <p v-if="route.name === 'algo-pv-producer-consumer'"><strong>生产者-消费者问题：</strong> 需同时解决缓冲池互斥（mutex = 1）和缓冲池满/空（full/empty）的同步控制。</p>
             <p v-else-if="route.name === 'algo-pv-reader-writer'"><strong>读者-写者问题（读者优先）：</strong> 第一个读者锁定写锁，最后一个读者释放写锁。读写互斥，允许多读并发。</p>
             <p v-else-if="route.name === 'algo-pv-philosophers'"><strong>哲学家进餐问题：</strong> 需解决筷子竞争死锁。这里采用“限制最大入座人数为 4 人”来规避死锁发生。</p>
@@ -1447,28 +1447,28 @@ int in = 0, out = 0;     // 缓冲区循环读写索引
 void Producer() {
     while(true) {
         // 1. 产生数据项目 item
-        P(empty);            // 检查并等待有空槽位
-        P(mutex_in);         // 锁定写入共享区入口
+        wait(empty);         // 检查并等待有空槽位
+        wait(mutex_in);      // 锁定写入共享区入口
         
         buffer[in] = item;   // 装入缓冲区
         in = (in + 1) % N;   // 循环移动指针
         
-        V(mutex_in);         // 解除写入锁定
-        V(full);             // 满槽增加，唤醒等待消费的进程
+        signal(mutex_in);    // 解除写入锁定
+        signal(full);        // 满槽增加，唤醒等待消费的进程
     }
 }
 
 // ================== 消费者进程 ==================
 void Consumer() {
     while(true) {
-        P(full);             // 等待有填充数据的物理块
-        P(mutex_out);        // 锁定读出共享区出口
+        wait(full);          // 等待有填充数据的物理块
+        wait(mutex_out);     // 锁定读出共享区出口
         
         item = buffer[out];  // 取出数据
         out = (out + 1) % N; // 循环移动读指针
         
-        V(mutex_out);        // 释放读取通道
-        V(empty);            // 空槽增加，唤醒等待生产的进程
+        signal(mutex_out);   // 释放读取通道
+        signal(empty);       // 空槽增加，唤醒等待生产的进程
         // 2. 消费及处理数据项目 item
     }
 }`,
@@ -1480,30 +1480,30 @@ int read_count = 0;     // 正在读的读者进程计数器
 // ================== 写者进程 ==================
 void Writer() {
     while(true) {
-        P(db);              // 写者直接尝试锁定文件数据库（阻止其他读者和写者进入）
+        wait(db);           // 写者直接尝试锁定文件数据库（阻止其他读者和写者进入）
         // 1. 写入更新文件...
-        V(db);              // 完成后释放共享库锁
+        signal(db);         // 完成后释放共享库锁
     }
 }
 
 // ================== 读者进程 ==================
 void Reader() {
     while(true) {
-        P(mutex);           // 锁住计数器修改操作
+        wait(mutex);        // 锁住计数器修改操作
         if (read_count == 0) {
-            P(db);          // 如果是第一个进来的读者，必须去锁住数据库，阻止写者进入
+            wait(db);       // 如果是第一个进来的读者，必须去锁住数据库，阻止写者进入
         }
         read_count++;
-        V(mutex);           // 释放计数器修改锁
+        signal(mutex);      // 释放计数器修改锁
         
         // 2. 在非独占模式下进行文件读取...
         
-        P(mutex);           // 读完后锁住计数器修改操作
+        wait(mutex);        // 读完后锁住计数器修改操作
         read_count--;
         if (read_count == 0) {
-            V(db);          // 如果是最后一个离开的读者，必须释放数据库锁，允许写者介入
+            signal(db);     // 如果是最后一个离开的读者，必须释放数据库锁，允许写者介入
         }
-        V(mutex);           // 释放计数器修改锁
+        signal(mutex);      // 释放计数器修改锁
     }
 }`,
   'algo-pv-philosophers': `// ================== 信号量定义 ==================
@@ -1515,15 +1515,15 @@ void Philosopher(int i) {
     while(true) {
         // 1. 独立思考中...
         
-        P(count);               // 尝试获取进餐位（防止5人同时拿筷产生死锁死循环）
-        P(chopstick[i]);        // 拿取左侧筷子
-        P(chopstick[(i + 1) % 5]); // 拿取右侧筷子
+        wait(count);                // 尝试获取进餐位（防止5人同时拿筷产生死锁死循环）
+        wait(chopstick[i]);         // 拿取左侧筷子
+        wait(chopstick[(i + 1) % 5]); // 拿取右侧筷子
         
         // 2. 享用晚餐...
         
-        V(chopstick[i]);        // 放下左侧筷子
-        V(chopstick[(i + 1) % 5]); // 放下右侧筷子
-        V(count);               // 归还进餐席位
+        signal(chopstick[i]);         // 放下左侧筷子
+        signal(chopstick[(i + 1) % 5]); // 放下右侧筷子
+        signal(count);              // 归还进餐席位
     }
 }`,
 }

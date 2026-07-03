@@ -57,8 +57,8 @@ export const chapterLectures = {
         content: '<p class="leading-relaxed mb-4"><strong>临界资源</strong>是一段时间内仅允许一个进程访问的资源。访问临界资源的代码称为<strong>临界区</strong>。访问准则包括：</p><ol class="list-decimal list-inside space-y-2 mb-4"><li><strong>空闲让进：</strong>临界区空闲时，应允许请求进程立即进入。</li><li><strong>忙则等待：</strong>临界区被占用时，其他试图进入的进程必须等待。</li><li><strong>有限等待：</strong>保证请求进程在有限时间内能进入临界区，避免死锁或饥饿。</li><li><strong>让权等待：</strong>进程不能进入临界区时，应立即释放CPU，进入阻塞状态。</li></ol>'
       },
       {
-        title: '信号量与PV操作',
-        content: '<p class="leading-relaxed mb-4">信号量 (Semaphore) 是一种常用于同步和互斥的机制。通过 <code>P(S)</code> (或 <code>wait(S)</code>) 和 <code>V(S)</code> (或 <code>signal(S)</code>) 两个原子操作进行控制。</p><ul class="list-disc list-inside space-y-2 mb-4"><li><code>P(S)</code>：S减1，若 S < 0，则进程阻塞并加入等待队列。</li><li><code>V(S)</code>：S加1，若 S &le; 0，则唤醒等待队列中的一个进程。</li></ul>'
+        title: '信号量与 wait/signal 操作',
+        content: '<p class="leading-relaxed mb-4">信号量 (Semaphore) 是一种常用于同步和互斥的机制。通过 <code>wait(S)</code> (或记作 <code>P(S)</code>) 和 <code>signal(S)</code> (或记作 <code>V(S)</code>) 两个原子操作进行控制。</p><ul class="list-disc list-inside space-y-2 mb-4"><li><code>wait(S)</code>：S减1，若 S &lt; 0，则进程阻塞并加入等待队列。</li><li><code>signal(S)</code>：S加1，若 S &le; 0，则唤醒等待队列中的一个进程。</li></ul>'
       },
       {
         title: '经典同步互斥问题',

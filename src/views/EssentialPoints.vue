@@ -313,11 +313,11 @@
 
       <!-- 3. 算法设计题板块 -->
       <div v-else-if="activeTab === 'algo'" class="space-y-6 animate-fade-in">
-        <!-- 1. 信号量 (Semaphore) 与 PV 操作算法设计 -->
+        <!-- 1. 信号量 (Semaphore) 与 wait/signal 操作算法设计 -->
         <div class="bg-white p-6 border border-slate-200 rounded-lg space-y-6">
           <h3 class="text-xl font-extrabold text-slate-900 border-l-4 border-indigo-600 pl-3 flex items-center justify-between">
-            <span>1. 信号量 (Semaphore) 与 PV 操作算法设计</span>
-            <span class="text-xs font-bold text-slate-350">Semaphore & PV Operations</span>
+            <span>1. 信号量 (Semaphore) 与 wait/signal 操作算法设计</span>
+            <span class="text-xs font-bold text-slate-350">Semaphore & wait/signal Operations</span>
           </h3>
 
           <div class="text-slate-655 text-base md:text-lg leading-relaxed space-y-4">
@@ -574,28 +574,28 @@ void Producer() {
     while(true) {
         Item item = produce_item(); // 生产数据项
         
-        P(empty);                  // 申请空缓冲区（同步）
-        P(mutex);                  // 锁住缓冲区（互斥）
+        wait(empty);               // 申请空缓冲区（同步）
+        wait(mutex);               // 锁住缓冲区（互斥）
         
         buffer[in] = item;         // 放入数据
         in = (in + 1) % N;
         
-        V(mutex);                  // 释放缓冲区（互斥）
-        V(full);                   // 增加满缓冲区计数（同步）
+        signal(mutex);             // 释放缓冲区（互斥）
+        signal(full);              // 增加满缓冲区计数（同步）
     }
 }
 
 // ================== 消费者进程 ==================
 void Consumer() {
     while(true) {
-        P(full);                   // 申请满数据缓冲区（同步）
-        P(mutex);                  // 锁住缓冲区（互斥）
+        wait(full);                // 申请满数据缓冲区（同步）
+        wait(mutex);               // 锁住缓冲区（互斥）
         
         Item item = buffer[out];   // 取出数据
         out = (out + 1) % N;
         
-        V(mutex);                  // 释放缓冲区（互斥）
-        V(empty);                  // 增加空槽位计数（同步）
+        signal(mutex);             // 释放缓冲区（互斥）
+        signal(empty);             // 增加空槽位计数（同步）
         
         consume_item(item);        // 消费数据项
     }
@@ -609,51 +609,51 @@ semaphore count_M = 2;    // 安全岛 M 的空闲车位，初值为 2
 // ================== 从 S 到 T 的自行车 ==================
 void Bicycle_S_to_T() {
     // 1. 驶入前，先申请安全岛 M 的空位名额（防死锁）
-    P(count_M);
+    wait(count_M);
     
     // 2. 申请并通过 SM 段
-    P(mutex_SM);
+    wait(mutex_SM);
     pass_SM_road();
     
     // 3. 进入安全岛 M，释放 SM 段所有权
     enter_island_M();
-    V(mutex_SM);
+    signal(mutex_SM);
     
     // 4. 申请并通过 MT 段
-    P(mutex_MT);
+    wait(mutex_MT);
     leave_island_M();
     
     // 5. 腾出安全岛空位，允许后续自行车进入
-    V(count_M);
+    signal(count_M);
     
     // 6. 通过 MT 段并驶出
     pass_MT_road();
-    V(mutex_MT);
+    signal(mutex_MT);
 }
 
 // ================== 从 T 到 S 的自行车 ==================
 void Bicycle_T_to_S() {
     // 1. 驶入前，先申请安全岛 M 的空位名额（防死锁）
-    P(count_M);
+    wait(count_M);
     
     // 2. 申请并通过 MT 段
-    P(mutex_MT);
+    wait(mutex_MT);
     pass_MT_road();
     
     // 3. 进入安全岛 M，释放 MT 段所有权
     enter_island_M();
-    V(mutex_MT);
+    signal(mutex_MT);
     
     // 4. 申请并通过 SM 段
-    P(mutex_SM);
+    wait(mutex_SM);
     leave_island_M();
     
     // 5. 腾出安全岛空位，允许后续自行车进入
-    V(count_M);
+    signal(count_M);
     
     // 6. 通过 SM 段并驶出
     pass_SM_road();
-    V(mutex_SM);
+    signal(mutex_SM);
 }`
 
 const fatherDaughterCode = `// ================== 信号量定义 ==================
@@ -666,26 +666,26 @@ void father() {
     while(true) {
         prepare_an_apple(); // 准备一个苹果
         
-        P(plate);           // 申请盘子空位
-        P(mutex);           // 锁定盘子进行操作
+        wait(plate);        // 申请盘子空位
+        wait(mutex);        // 锁定盘子进行操作
         
         put_apple_in_plate(); // 向盘子放苹果
         
-        V(mutex);           // 释放盘子锁
-        V(apple);           // 宣告盘子中有苹果了
+        signal(mutex);      // 释放盘子锁
+        signal(apple);      // 宣告盘子中有苹果了
     }
 }
 
 // ================== 女儿进程 ==================
 void daughter() {
     while(true) {
-        P(apple);           // 申请苹果（等待盘中有苹果）
-        P(mutex);           // 锁定盘子进行操作
+        wait(apple);        // 申请苹果（等待盘中有苹果）
+        wait(mutex);        // 锁定盘子进行操作
         
         take_apple_from_plate(); // 从盘中取苹果吃
         
-        V(mutex);           // 释放盘子锁
-        V(plate);           // 宣告盘子变空了
+        signal(mutex);      // 释放盘子锁
+        signal(plate);      // 宣告盘子变空了
         
         eat_apple();        // 吃苹果
     }
@@ -709,34 +709,34 @@ semaphore mutex_jar = 1;   // 水缸互斥锁，初值为 1
 // ================== 小和尚进程 ==================
 void Little_Monk() {
     while(true) {
-        P(empty_jar);      // 1. 先确认水缸是否有空位（防死锁）
-        P(bucket);         // 2. 申请水桶
+        wait(empty_jar);   // 1. 先确认水缸是否有空位（防死锁）
+        wait(bucket);      // 2. 申请水桶
         
-        P(mutex_well);     // 3. 互斥使用水井打水
+        wait(mutex_well);  // 3. 互斥使用水井打水
         get_water_from_well();
-        V(mutex_well);     // 4. 释放水井
+        signal(mutex_well); // 4. 释放水井
         
-        P(mutex_jar);      // 5. 互斥使用水缸倒水
+        wait(mutex_jar);   // 5. 互斥使用水缸倒水
         pour_water_into_jar();
-        V(mutex_jar);      // 6. 释放水缸
+        signal(mutex_jar); // 6. 释放水缸
         
-        V(bucket);         // 7. 归还水桶
-        V(full_jar);       // 8. 宣告水缸新增一桶水
+        signal(bucket);    // 7. 归还水桶
+        signal(full_jar);  // 8. 宣告水缸新增一桶水
     }
 }
 
 // ================== 老和尚进程 ==================
 void Old_Monk() {
     while(true) {
-        P(full_jar);       // 1. 先确认水缸中是否有水（防死锁）
-        P(bucket);         // 2. 申请水桶
+        wait(full_jar);    // 1. 先确认水缸中是否有水（防死锁）
+        wait(bucket);      // 2. 申请水桶
         
-        P(mutex_jar);      // 3. 互斥从水缸取水
+        wait(mutex_jar);   // 3. 互斥从水缸取水
         draw_water_from_jar();
-        V(mutex_jar);      // 4. 释放水缸
+        signal(mutex_jar); // 4. 释放水缸
         
-        V(bucket);         // 5. 归还水桶
-        V(empty_jar);      // 6. 宣告水缸腾出一个空位
+        signal(bucket);    // 5. 归还水桶
+        signal(empty_jar); // 6. 宣告水缸腾出一个空位
         
         drink_water();     // 7. 喝水
     }
