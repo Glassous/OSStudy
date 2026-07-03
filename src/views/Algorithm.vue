@@ -615,16 +615,16 @@
       <!-- Part 2.5: Interactive Webpage Module -->
       <section v-if="hasInteractivePage" :key="'interactive-' + route.path" class="bg-white border border-slate-200 rounded-lg overflow-hidden">
         <!-- Attribution Header -->
-        <div class="flex items-center gap-3 px-6 py-3.5 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200">
+        <div class="flex flex-wrap items-center gap-3 px-6 py-3.5 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-slate-200">
           <span class="text-xs font-bold text-indigo-700">🎮 交互式模拟演示</span>
           <div class="flex items-center gap-2 ml-auto">
             <img 
               src="https://file.glassous.top/OSStudy/images/imicola.png" 
               alt="imicola avatar"
-              class="w-6 h-6 rounded-full object-cover ring-1 ring-indigo-200 shadow-sm flex-shrink-0"
+              class="w-7 h-7 rounded-full object-cover ring-1 ring-indigo-200 shadow-sm flex-shrink-0"
               @error="e => e.target.style.display='none'"
             />
-            <span class="text-[11px] text-slate-500">由 <span class="font-bold text-indigo-600">imicola</span> 大佬制作</span>
+            <span class="text-sm text-slate-600">由 <span class="font-bold text-indigo-600">imicola</span> 大佬制作</span>
           </div>
         </div>
         <!-- iframe Embed -->
