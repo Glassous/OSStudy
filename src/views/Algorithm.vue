@@ -513,6 +513,13 @@
             </div>
             <pre class="p-4 overflow-x-auto whitespace-pre-wrap leading-relaxed"><code>{{ pvCodeContent }}</code></pre>
           </div>
+          <!-- 读者-写者变种：尿尿问题 -->
+          <div v-if="route.name === 'algo-pv-reader-writer'" class="bg-slate-900 text-slate-100 rounded-lg overflow-hidden font-mono text-xs shadow-sm">
+            <div class="bg-slate-800 px-4 py-2 text-slate-400 flex justify-between items-center border-b border-slate-700">
+              <span>📋 变种练习题：尿尿问题（读者-写者模型）</span>
+            </div>
+            <pre class="p-4 overflow-x-auto whitespace-pre-wrap leading-relaxed"><code>{{ pvCodes['algo-pv-reader-writer-pee'] }}</code></pre>
+          </div>
         </div>
 
         <!-- File System Calculators -->
@@ -722,7 +729,6 @@ const interactivePageUrl = computed(() => {
     banker: '/InteractiveWebpage/banker/index.html',
     page: '/InteractiveWebpage/page-replacement/index.html',
     disk: '/InteractiveWebpage/disk-scheduler/index.html',
-    pv: '/InteractiveWebpage/process-states/index.html',
   }
   return map[activeType.value] || ''
 })
@@ -1504,6 +1510,46 @@ void Reader() {
             signal(db);     // 如果是最后一个离开的读者，必须释放数据库锁，允许写者介入
         }
         signal(mutex);      // 释放计数器修改锁
+    }
+}`,
+  'algo-pv-reader-writer-pee': `// 题目：厕所有5个位置，一个位置只能有一个人在尿尿，
+//       需要没人尿尿时保洁阿姨才能进去打扫，打扫时不能尿尿。
+
+// ================== 信号量与计数器定义 ==================
+semaphore mutex = 1;    // 保护对共享变量 count 修改的互斥锁
+semaphore clean = 1;    // 保洁阿姨的互斥锁（写者锁）
+semaphore empty = 5;    // 空闲位置数（厕所容量）
+int count = 0;          // 当前正在尿尿的人数计数器
+
+// ================== 尿尿的人进程（读者） ==================
+void Pee_Person() {
+    while(true) {
+        wait(empty);        // 1. 申请空闲位置
+        wait(mutex);        // 2. 锁住计数器修改操作
+        if (count == 0) {
+            wait(clean);    // 3. 如果是第一个进来的人，锁住保洁阿姨（阻止打扫）
+        }
+        count++;            // 4. 尿尿人数+1
+        signal(mutex);      // 5. 释放计数器修改锁
+        
+        // 6. 尿尿中...
+        
+        wait(mutex);        // 7. 锁住计数器修改操作
+        count--;            // 8. 尿尿人数-1
+        if (count == 0) {
+            signal(clean);  // 9. 如果是最后一个人离开，允许保洁阿姨打扫
+        }
+        signal(mutex);      // 10. 释放计数器修改锁
+        signal(empty);      // 11. 释放空闲位置
+    }
+}
+
+// ================== 保洁阿姨进程（写者） ==================
+void Cleaner() {
+    while(true) {
+        wait(clean);        // 1. 等待无人尿尿（独占访问）
+        // 2. 打扫厕所中...
+        signal(clean);      // 3. 完成打扫，释放锁
     }
 }`,
   'algo-pv-philosophers': `// ================== 信号量定义 ==================
